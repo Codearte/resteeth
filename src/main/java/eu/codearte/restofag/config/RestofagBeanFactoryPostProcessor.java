@@ -6,13 +6,13 @@ import eu.codearte.restofag.core.RestClientMethodInterceptor;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.Ordered;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.util.Set;
@@ -20,7 +20,6 @@ import java.util.Set;
 /**
  * @author Jakub Kubrynski
  */
-@Component
 public class RestofagBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Ordered, BeanClassLoaderAware {
 
 	private final ClassPathScanningCandidateComponentProvider candidateComponentProvider;
@@ -39,25 +38,37 @@ public class RestofagBeanFactoryPostProcessor implements BeanFactoryPostProcesso
 		for (String basePackages : basePackages) {
 			Set<BeanDefinition> eu = candidateComponentProvider.findCandidateComponents(basePackages);
 			for (BeanDefinition beanDefinition : eu) {
-				Object bean = createBean(beanDefinition);
-				configurableListableBeanFactory.registerSingleton(beanDefinition.getBeanClassName(), bean);
+				Class<?> beanClass = getBeanClass(beanDefinition);
+				if (beanNotDefinedExplicitly(configurableListableBeanFactory, beanClass)) {
+					Object bean = createBean(beanClass);
+					configurableListableBeanFactory.registerSingleton(beanDefinition.getBeanClassName(), bean);
+				}
 			}
 		}
 
 	}
 
-	private Object createBean(BeanDefinition beanDefinition) {
+	private boolean beanNotDefinedExplicitly(ConfigurableListableBeanFactory configurableListableBeanFactory, Class<?> beanClass) {
+		String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(configurableListableBeanFactory, beanClass, true, true);
+		return beanNames == null || beanNames.length == 0;
+	}
+
+	private Object createBean(Class<?> beanClass) {
 		ProxyFactory result = new ProxyFactory();
 
-		try {
-			result.addInterface(classLoader.loadClass(beanDefinition.getBeanClassName()));
-		} catch (ClassNotFoundException e) {
-			throw new NoClassDefFoundError("No class found: " + e.getMessage());
-		}
+		result.addInterface(beanClass);
 		result.setTarget(new RestClientBean());
 		result.addAdvice(new RestClientMethodInterceptor());
 
 		return result.getProxy();
+	}
+
+	private Class<?> getBeanClass(BeanDefinition beanDefinition) {
+		try {
+			return classLoader.loadClass(beanDefinition.getBeanClassName());
+		} catch (ClassNotFoundException e) {
+			throw new NoClassDefFoundError("No class found: " + e.getMessage());
+		}
 	}
 
 	@Override
