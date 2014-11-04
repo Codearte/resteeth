@@ -5,7 +5,7 @@ import spock.lang.Specification
 /**
  * @author Jakub Kubrynski
  */
-class FixedEndpointSpec extends Specification {
+class FixedEndpointTest extends Specification {
 
 	private static final String ENDPOINT_URL = "http://localhost"
 

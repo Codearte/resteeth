@@ -5,7 +5,7 @@ import spock.lang.Specification
 /**
  * @author Jakub Kubrynski
  */
-class RoundRobinEndpointSpec extends Specification {
+class RoundRobinEndpointTest extends Specification {
 
 	private static final String ENDPOINT_1_URL = "http://localhost1"
 	private static final String ENDPOINT_2_URL = "http://localhost2"
@@ -16,8 +16,10 @@ class RoundRobinEndpointSpec extends Specification {
 		when:
 			def endpoint1 = sut.getEndpoint()
 			def endpoint2 = sut.getEndpoint()
+			def endpoint3 = sut.getEndpoint()
 		then:
 			endpoint1 == ENDPOINT_1_URL
 			endpoint2 == ENDPOINT_2_URL
+			endpoint3 == ENDPOINT_1_URL
 	}
 }
