@@ -1,8 +1,12 @@
 package eu.codearte.restofag
 
 import eu.codearte.restofag.annotation.EnableRestofag
+import eu.codearte.restofag.endpoint.EndpointProvider
+import eu.codearte.restofag.endpoint.StubEndpointProvider
 import eu.codearte.restofag.sample.RestClientInterface
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import spock.lang.Specification
 
 /**
@@ -10,8 +14,13 @@ import spock.lang.Specification
  */
 class RestofagBeanFactoryPostProcessorTest extends Specification {
 
+	@Configuration
 	@EnableRestofag
 	static class SampleRawConfiguration {
+		@Bean
+		EndpointProvider endpointProvider() {
+			new StubEndpointProvider()
+		}
 	}
 
 	def "should contain RestClientInterface with default @EnableRestofag"() {
@@ -24,8 +33,13 @@ class RestofagBeanFactoryPostProcessorTest extends Specification {
 			bean instanceof RestClientInterface
 	}
 
+	@Configuration
 	@EnableRestofag(basePackages = "eu.codearte.restofag.sample")
 	static class SampleBasePackagesConfiguration {
+		@Bean
+		EndpointProvider endpointProvider() {
+			new StubEndpointProvider()
+		}
 	}
 
 	def "should contain RestClientInterface with @EnableRestofag containing basePackages"() {
