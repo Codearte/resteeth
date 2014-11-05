@@ -5,12 +5,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Jakub Kubrynski
  */
-public class RoundRobinEndpoint implements EndpointProvider {
+class RoundRobinEndpoint implements EndpointProvider {
 
 	private final String[] endpointUrls;
 	private final AtomicInteger counter = new AtomicInteger();
 
-	public RoundRobinEndpoint(String[] endpointUrls) {
+	RoundRobinEndpoint(String[] endpointUrls) {
 		this.endpointUrls = endpointUrls;
 	}
 

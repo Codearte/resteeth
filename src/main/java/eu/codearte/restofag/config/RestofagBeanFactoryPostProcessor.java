@@ -23,13 +23,13 @@ import java.util.Set;
 /**
  * @author Jakub Kubrynski
  */
-public class RestofagBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Ordered, BeanClassLoaderAware {
+class RestofagBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Ordered, BeanClassLoaderAware {
 
 	private final ClassPathScanningCandidateComponentProvider candidateComponentProvider;
 	private final String[] basePackages;
 	private ClassLoader classLoader;
 
-	public RestofagBeanFactoryPostProcessor(String[] basePackagesParam) {
+	RestofagBeanFactoryPostProcessor(String[] basePackagesParam) {
 		Assert.notEmpty(basePackagesParam);
 		basePackages = basePackagesParam;
 		candidateComponentProvider = new RestClientComponentProvider(false);

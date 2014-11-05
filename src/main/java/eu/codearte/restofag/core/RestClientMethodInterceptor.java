@@ -6,11 +6,11 @@ import org.aopalliance.intercept.MethodInvocation;
 /**
  * @author Jakub Kubrynski
  */
-public class RestClientMethodInterceptor implements MethodInterceptor {
+class RestClientMethodInterceptor implements MethodInterceptor {
 
 	private final RestTemplateInvoker restTemplateInvoker;
 
-	public RestClientMethodInterceptor(RestTemplateInvoker restTemplateInvoker) {
+	RestClientMethodInterceptor(RestTemplateInvoker restTemplateInvoker) {
 		this.restTemplateInvoker = restTemplateInvoker;
 	}
 

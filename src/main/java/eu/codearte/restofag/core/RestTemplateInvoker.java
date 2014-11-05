@@ -15,13 +15,13 @@ import java.util.Map;
 /**
  * @author Jakub Kubrynski
  */
-public class RestTemplateInvoker {
+class RestTemplateInvoker {
 
 	private final RestTemplate restTemplate;
 	private final EndpointProvider endpointProvider;
 	private final Map<Method, MethodMetadata> methodMetadataMap;
 
-	public RestTemplateInvoker(RestTemplate restTemplate, EndpointProvider endpointProvider, Map<Method, MethodMetadata> methodMetadataMap) {
+	RestTemplateInvoker(RestTemplate restTemplate, EndpointProvider endpointProvider, Map<Method, MethodMetadata> methodMetadataMap) {
 		this.restTemplate = restTemplate;
 		this.endpointProvider = endpointProvider;
 		this.methodMetadataMap = methodMetadataMap;

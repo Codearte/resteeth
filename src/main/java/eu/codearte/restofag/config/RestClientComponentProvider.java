@@ -6,9 +6,9 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 /**
  * @author Jakub Kubrynski
  */
-public class RestClientComponentProvider extends ClassPathScanningCandidateComponentProvider {
+class RestClientComponentProvider extends ClassPathScanningCandidateComponentProvider {
 
-	public RestClientComponentProvider(boolean useDefaultFilters) {
+	RestClientComponentProvider(boolean useDefaultFilters) {
 		super(useDefaultFilters);
 	}
 

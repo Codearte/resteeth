@@ -1,6 +1,5 @@
-package eu.codearte.restofag.annotation;
+package eu.codearte.restofag.config;
 
-import eu.codearte.restofag.config.RestofagDefinitionRegistrar;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.Documented;

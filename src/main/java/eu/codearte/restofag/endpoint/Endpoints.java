@@ -1,13 +1,12 @@
-package eu.codearte.restofag;
-
-import eu.codearte.restofag.endpoint.EndpointProvider;
-import eu.codearte.restofag.endpoint.FixedEndpoint;
-import eu.codearte.restofag.endpoint.RoundRobinEndpoint;
+package eu.codearte.restofag.endpoint;
 
 /**
  * @author Jakub Kubrynski
  */
-public class Restofag {
+public class Endpoints {
+
+	private Endpoints() {
+	}
 
 	public static EndpointProvider fixedEndpoint(String endpointUrl) {
 		return new FixedEndpoint(endpointUrl);

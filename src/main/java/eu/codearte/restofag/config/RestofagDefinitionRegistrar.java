@@ -1,6 +1,5 @@
 package eu.codearte.restofag.config;
 
-import eu.codearte.restofag.annotation.EnableRestofag;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -12,7 +11,7 @@ import org.springframework.core.type.AnnotationMetadata;
 /**
  * @author Jakub Kubrynski
  */
-public class RestofagDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+class RestofagDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
 	private static final String ANNOTATION_NAME = EnableRestofag.class.getCanonicalName();
 	private static final String BASE_PACKAGES_ATTRIBUTE = "basePackages";

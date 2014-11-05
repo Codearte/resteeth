@@ -1,6 +1,6 @@
 package eu.codearte.restofag.core.sample
 
-import eu.codearte.restofag.annotation.EnableRestofag
+import eu.codearte.restofag.config.EnableRestofag
 import eu.codearte.restofag.endpoint.EndpointProvider
 import eu.codearte.restofag.endpoint.StubEndpointProvider
 import org.springframework.context.annotation.Bean

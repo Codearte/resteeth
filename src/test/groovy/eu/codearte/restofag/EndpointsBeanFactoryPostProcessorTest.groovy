@@ -1,6 +1,6 @@
 package eu.codearte.restofag
 
-import eu.codearte.restofag.annotation.EnableRestofag
+import eu.codearte.restofag.config.EnableRestofag
 import eu.codearte.restofag.endpoint.EndpointProvider
 import eu.codearte.restofag.endpoint.StubEndpointProvider
 import eu.codearte.restofag.sample.RestClientInterface
@@ -12,7 +12,7 @@ import spock.lang.Specification
 /**
  * @author Jakub Kubrynski
  */
-class RestofagBeanFactoryPostProcessorTest extends Specification {
+class EndpointsBeanFactoryPostProcessorTest extends Specification {
 
 	@Configuration
 	@EnableRestofag
