@@ -8,6 +8,4 @@ import eu.codearte.restofag.annotation.RestClient;
 @RestClient
 interface RestClientInterface {
 
-	String test();
-
 }

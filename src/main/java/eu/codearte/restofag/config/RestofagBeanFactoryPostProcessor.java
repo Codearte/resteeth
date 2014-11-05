@@ -1,9 +1,8 @@
 package eu.codearte.restofag.config;
 
 import eu.codearte.restofag.annotation.RestClient;
-import eu.codearte.restofag.core.RestClientBean;
-import eu.codearte.restofag.core.RestClientMethodInterceptor;
-import org.springframework.aop.framework.ProxyFactory;
+import eu.codearte.restofag.core.BeanProxyCreator;
+import eu.codearte.restofag.endpoint.EndpointProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactoryUtils;
@@ -13,8 +12,12 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.Ordered;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -34,33 +37,39 @@ public class RestofagBeanFactoryPostProcessor implements BeanFactoryPostProcesso
 	}
 
 	@Override
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
-		for (String basePackages : basePackages) {
-			Set<BeanDefinition> eu = candidateComponentProvider.findCandidateComponents(basePackages);
+	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+		RestTemplate restTemplate = provideRestTemplate(beanFactory);
+		BeanProxyCreator beanProxyCreator = new BeanProxyCreator(restTemplate);
+
+		for (String basePackage : basePackages) {
+			Set<BeanDefinition> eu = candidateComponentProvider.findCandidateComponents(basePackage);
 			for (BeanDefinition beanDefinition : eu) {
 				Class<?> beanClass = getBeanClass(beanDefinition);
-				if (beanNotDefinedExplicitly(configurableListableBeanFactory, beanClass)) {
-					Object bean = createBean(beanClass);
-					configurableListableBeanFactory.registerSingleton(beanDefinition.getBeanClassName(), bean);
+				if (beanNotDefinedExplicitly(beanFactory, beanClass)) {
+					EndpointProvider endpointProvider = findEndpointProvider(beanDefinition, beanFactory);
+					beanFactory.registerSingleton(beanDefinition.getBeanClassName(),
+							beanProxyCreator.createProxyBean(beanClass, endpointProvider));
 				}
 			}
 		}
+	}
 
+	private EndpointProvider findEndpointProvider(BeanDefinition beanDefinition, ConfigurableListableBeanFactory beanFactory) {
+		return BeanFactoryUtils.beanOfTypeIncludingAncestors(beanFactory, EndpointProvider.class);
+	}
+
+	private RestTemplate provideRestTemplate(ConfigurableListableBeanFactory configurableListableBeanFactory) {
+		if (beanNotDefinedExplicitly(configurableListableBeanFactory, RestTemplate.class)) {
+			ArrayList<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+			messageConverters.add(new MappingJackson2HttpMessageConverter());
+			configurableListableBeanFactory.registerSingleton("restofagRestTemplate", new RestTemplate(messageConverters));
+		}
+		return configurableListableBeanFactory.getBean(RestTemplate.class);
 	}
 
 	private boolean beanNotDefinedExplicitly(ConfigurableListableBeanFactory configurableListableBeanFactory, Class<?> beanClass) {
 		String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(configurableListableBeanFactory, beanClass, true, true);
 		return beanNames == null || beanNames.length == 0;
-	}
-
-	private Object createBean(Class<?> beanClass) {
-		ProxyFactory result = new ProxyFactory();
-
-		result.addInterface(beanClass);
-		result.setTarget(new RestClientBean());
-		result.addAdvice(new RestClientMethodInterceptor());
-
-		return result.getProxy();
 	}
 
 	private Class<?> getBeanClass(BeanDefinition beanDefinition) {
