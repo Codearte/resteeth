@@ -53,34 +53,12 @@ public class BeanProxyCreator {
 		return methodMetadataMap;
 	}
 
-	private String extractUrl(RequestMapping requestMapping) {
-		String foundUrl = "";
-		if (requestMapping == null) {
-			return foundUrl;
-		}
-
-		String[] urls = requestMapping.value();
-		if (urls != null && urls.length > 0) {
-			foundUrl = urls[0];
-			if (urls.length > 1) {
-				LOG.warn("Found more than one URL mapping. Using first specified: {}", foundUrl);
-			}
-		}
-		return foundUrl;
-	}
-
 	private MethodMetadata extractMethodMetadata(Method method, String controllerUrl) {
 		RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
 
 		String methodUrl = controllerUrl + extractUrl(requestMapping);
 
-		RequestMethod[] requestMethods = requestMapping.method();
-		if (requestMethods == null || requestMethods.length == 0) {
-			LOG.warn("No request mapping requestMethods found");
-		} else if (requestMethods.length > 1) {
-			LOG.warn("More than one request method found. Using first specified");
-		}
-		RequestMethod requestMethod = requestMethods[0];
+		RequestMethod requestMethod = extractRequestMethod(requestMapping);
 
 		Class<?> returnType = method.getReturnType();
 
@@ -101,5 +79,32 @@ public class BeanProxyCreator {
 		}
 
 		return new MethodMetadata(methodUrl, requestMethod, returnType, requestBody, urlVariables);
+	}
+
+	private String extractUrl(RequestMapping requestMapping) {
+		String foundUrl = "";
+		if (requestMapping == null) {
+			return foundUrl;
+		}
+
+		String[] urls = requestMapping.value();
+		if (urls != null && urls.length > 0) {
+			foundUrl = urls[0];
+			if (urls.length > 1) {
+				LOG.warn("Found more than one URL mapping. Using first specified: {}", foundUrl);
+			}
+		}
+		return foundUrl;
+	}
+
+	private RequestMethod extractRequestMethod(RequestMapping requestMapping) {
+		RequestMethod[] requestMethods = requestMapping.method();
+		if (requestMethods == null || requestMethods.length == 0) {
+			LOG.warn("No request mapping requestMethods found");
+			throw new IllegalStateException("No request mapping specified!");
+		} else if (requestMethods.length > 1) {
+			LOG.warn("More than one request method found. Using first specified");
+		}
+		return requestMethods[0];
 	}
 }
