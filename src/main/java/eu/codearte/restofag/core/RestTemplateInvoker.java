@@ -6,14 +6,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Parameter;
+import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Jakub Kubrynski
@@ -21,61 +18,52 @@ import java.util.HashMap;
 public class RestTemplateInvoker {
 
 	private final RestTemplate restTemplate;
+	private final EndpointProvider endpointProvider;
+	private final Map<Method, MethodMetadata> methodMetadataMap;
 
-	public RestTemplateInvoker(RestTemplate restTemplate) {
+	public RestTemplateInvoker(RestTemplate restTemplate, EndpointProvider endpointProvider, Map<Method, MethodMetadata> methodMetadataMap) {
 		this.restTemplate = restTemplate;
+		this.endpointProvider = endpointProvider;
+		this.methodMetadataMap = methodMetadataMap;
 	}
 
-	Object invokeRest(MethodInvocation invocation, EndpointProvider endpointProvider) {
-		RequestMapping requestMapping = invocation.getMethod().getAnnotation(RequestMapping.class);
-		String[] urls = requestMapping.value();
+	Object invokeRest(MethodInvocation invocation) {
+		MethodMetadata methodMetadata = methodMetadataMap.get(invocation.getMethod());
+		Map<String, ?> urlVariablesValues = buildArgumentsMap(methodMetadata.getUrlVariables(), invocation.getArguments());
 
-		if (urls == null) {
-			// read mapping from type annotation
-			throw new IllegalArgumentException("No mapping specified");
-		}
+		String requestUrl = endpointProvider.getEndpoint() + methodMetadata.getMethodUrl();
 
-		RequestMethod[] methods = requestMapping.method();
-		if (methods == null || methods.length == 0) {
-			throw new IllegalArgumentException("No request method specified");
-		}
-
-		RequestMethod method = methods[0];
-		Class<?> returnType = invocation.getMethod().getReturnType();
-
-		Parameter[] parameters = invocation.getMethod().getParameters();
-		Object[] arguments = invocation.getArguments();
-		Object requestBody = null;
-		HashMap<String, Object> urlVariables = new HashMap<>();
-		if (parameters != null && parameters.length > 0) {
-			for (int i = 0; i < parameters.length; i++) {
-				PathVariable pathVariable = parameters[i].getDeclaredAnnotation(PathVariable.class);
-				if (pathVariable != null) {
-					urlVariables.put(pathVariable.value(), arguments[i]);
-				}
-				if (parameters[i].getDeclaredAnnotation(RequestBody.class) != null) {
-					requestBody = arguments[i];
-				}
-			}
-		}
-
-		String url = endpointProvider.getEndpoint() + urls[0];
-		switch (method) {
+		switch (methodMetadata.getRequestMethod()) {
 			case GET:
-				if (ResponseEntity.class.isAssignableFrom(returnType)) {
-					return restTemplate.getForEntity(url, returnType, urlVariables);
+				if (ResponseEntity.class.isAssignableFrom(methodMetadata.getReturnType())) {
+					return restTemplate.getForEntity(requestUrl, methodMetadata.getReturnType(), urlVariablesValues);
 				} else {
-					return restTemplate.getForObject(url, returnType, urlVariables);
+					return restTemplate.getForObject(requestUrl, methodMetadata.getReturnType(), urlVariablesValues);
 				}
 			case POST:
 				HttpHeaders headers = new HttpHeaders();
 				headers.setContentType(MediaType.APPLICATION_JSON);
 
-				HttpEntity entity = new HttpEntity(requestBody, headers);
+				@SuppressWarnings("unchecked")
+				HttpEntity entity = new HttpEntity(extractRequestBody(methodMetadata.getRequestBody(), invocation.getArguments()), headers);
 				// if 201 then post for location
-				return restTemplate.postForLocation(url, entity, urlVariables);
+				return restTemplate.postForLocation(requestUrl, entity, urlVariablesValues);
 			default:
 				throw new IllegalStateException("Uuups");
 		}
+	}
+
+	private Object extractRequestBody(Integer requestBody, Object[] arguments) {
+		return arguments[requestBody];
+	}
+
+	private Map<String, ?> buildArgumentsMap(HashMap<Integer, String> urlVariables, Object[] arguments) {
+		HashMap<String, Object> stringHashMap = new HashMap<>();
+
+		for (int i = 0; i < arguments.length; i++) {
+			stringHashMap.put(urlVariables.get(i), arguments[i]);
+		}
+
+		return stringHashMap;
 	}
 }
