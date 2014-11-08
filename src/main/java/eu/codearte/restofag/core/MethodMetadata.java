@@ -1,6 +1,7 @@
 package eu.codearte.restofag.core;
 
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 
 import java.util.HashMap;
 
@@ -10,24 +11,27 @@ import java.util.HashMap;
 class MethodMetadata {
 
 	private final String methodUrl;
-	private final RequestMethod requestMethod;
+	private final HttpMethod requestMethod;
 	private final Class<?> returnType;
 	private final Integer requestBody;
 	private final HashMap<Integer, String> urlVariables;
+	private final HttpHeaders httpHeaders;
 
-	MethodMetadata(String methodUrl, RequestMethod requestMethod, Class<?> returnType, Integer requestBody, HashMap<Integer, String> urlVariables) {
+	MethodMetadata(String methodUrl, HttpMethod requestMethod, Class<?> returnType, Integer requestBody,
+								 HashMap<Integer, String> urlVariables, HttpHeaders httpHeaders) {
 		this.methodUrl = methodUrl;
 		this.requestMethod = requestMethod;
 		this.returnType = returnType;
 		this.requestBody = requestBody;
 		this.urlVariables = urlVariables;
+		this.httpHeaders = httpHeaders;
 	}
 
 	String getMethodUrl() {
 		return methodUrl;
 	}
 
-	RequestMethod getRequestMethod() {
+	HttpMethod getRequestMethod() {
 		return requestMethod;
 	}
 
@@ -41,5 +45,9 @@ class MethodMetadata {
 
 	HashMap<Integer, String> getUrlVariables() {
 		return urlVariables;
+	}
+
+	HttpHeaders getHttpHeaders() {
+		return httpHeaders;
 	}
 }

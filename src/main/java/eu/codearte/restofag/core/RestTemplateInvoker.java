@@ -3,8 +3,6 @@ package eu.codearte.restofag.core;
 import eu.codearte.restofag.endpoint.EndpointProvider;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -33,28 +31,21 @@ class RestTemplateInvoker {
 
 		String requestUrl = endpointProvider.getEndpoint() + methodMetadata.getMethodUrl();
 
-		switch (methodMetadata.getRequestMethod()) {
-			case GET:
-				if (ResponseEntity.class.isAssignableFrom(methodMetadata.getReturnType())) {
-					return restTemplate.getForEntity(requestUrl, methodMetadata.getReturnType(), urlVariablesValues);
-				} else {
-					return restTemplate.getForObject(requestUrl, methodMetadata.getReturnType(), urlVariablesValues);
-				}
-			case POST:
-				HttpHeaders headers = new HttpHeaders();
-				headers.setContentType(MediaType.APPLICATION_JSON);
+		@SuppressWarnings("unchecked")
+		HttpEntity entity = new HttpEntity(
+				extractRequestBody(methodMetadata.getRequestBody(), invocation.getArguments()), methodMetadata.getHttpHeaders());
 
-				@SuppressWarnings("unchecked")
-				HttpEntity entity = new HttpEntity(extractRequestBody(methodMetadata.getRequestBody(), invocation.getArguments()), headers);
-				// if 201 then post for location
-				return restTemplate.postForLocation(requestUrl, entity, urlVariablesValues);
-			default:
-				throw new IllegalStateException("Uuups");
-		}
+		ResponseEntity<?> exchange = restTemplate.exchange(requestUrl, methodMetadata.getRequestMethod(), entity,
+				methodMetadata.getReturnType(), urlVariablesValues);
+
+		return exchange.getBody();
 	}
 
 	private Object extractRequestBody(Integer requestBody, Object[] arguments) {
-		return arguments[requestBody];
+		if (requestBody != null && arguments != null && arguments.length >= requestBody) {
+			return arguments[requestBody];
+		}
+		return null;
 	}
 
 	private Map<String, ?> buildArgumentsMap(HashMap<Integer, String> urlVariables, Object[] arguments) {

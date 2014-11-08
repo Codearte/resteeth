@@ -23,4 +23,11 @@ interface RestClientWithMethods {
 
 	@RequestMapping(value = "/users/{id}/staff", method = RequestMethod.POST)
 	void postToUsersStaff(@PathVariable("id") Long userId, @RequestBody User user);
+
+	@RequestMapping(value = "/users/{id}", method = RequestMethod.PUT)
+	void putToUsers(@PathVariable("id") Long userId, @RequestBody User user);
+
+	@RequestMapping(value = "/users/{id}", method = RequestMethod.DELETE)
+	void deleteUser(@PathVariable("id") Integer id);
+
 }

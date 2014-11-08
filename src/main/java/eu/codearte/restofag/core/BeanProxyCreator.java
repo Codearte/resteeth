@@ -4,6 +4,9 @@ import eu.codearte.restofag.endpoint.EndpointProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,22 +49,17 @@ public class BeanProxyCreator {
 
 	private Map<Method, MethodMetadata> extractInterfaceInformation(Class<?> beanClass) {
 		Map<Method, MethodMetadata> methodMetadataMap = new HashMap<>();
-		RequestMapping requestMapping = beanClass.getAnnotation(RequestMapping.class);
-		String controllerUrl = extractUrl(requestMapping);
+		RequestMapping controllerRequestMapping = beanClass.getAnnotation(RequestMapping.class);
 		for (Method method : beanClass.getMethods()) {
-			methodMetadataMap.put(method, extractMethodMetadata(method, controllerUrl));
+			methodMetadataMap.put(method, extractMethodMetadata(method, controllerRequestMapping));
 		}
 		return methodMetadataMap;
 	}
 
-	private MethodMetadata extractMethodMetadata(Method method, String controllerUrl) {
+	private MethodMetadata extractMethodMetadata(Method method, RequestMapping controllerRequestMapping) {
 		RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
 
-		String methodUrl = controllerUrl + extractUrl(requestMapping);
-
-		RequestMethod requestMethod = extractRequestMethod(requestMapping);
-
-		Class<?> returnType = method.getReturnType();
+		String methodUrl = extractUrl(controllerRequestMapping) + extractUrl(requestMapping);
 
 		Annotation[][] parameterAnnotations = method.getParameterAnnotations();
 		Integer requestBody = null;
@@ -78,7 +77,44 @@ public class BeanProxyCreator {
 			}
 		}
 
-		return new MethodMetadata(methodUrl, requestMethod, returnType, requestBody, urlVariables);
+		return new MethodMetadata(methodUrl,
+				extractRequestMethod(requestMapping, controllerRequestMapping),
+				extractReturnType(method),
+				requestBody,
+				urlVariables,
+				extractHeaders(requestMapping, controllerRequestMapping));
+	}
+
+	private Class<?> extractReturnType(Method method) {
+		return method.getReturnType() == void.class ? Void.class : method.getReturnType();
+	}
+
+	private HttpHeaders extractHeaders(RequestMapping requestMapping, RequestMapping controllerRequestMapping) {
+		HttpHeaders headers = new HttpHeaders();
+
+		String[] consumes = requestMapping.consumes();
+		if (consumes.length == 0 && controllerRequestMapping != null) {
+			consumes = controllerRequestMapping.consumes();
+		}
+
+		if (consumes.length > 0) {
+			headers.setContentType(MediaType.valueOf(consumes[0]));
+		}
+
+		String[] produces = requestMapping.produces();
+		if (produces.length == 0 && controllerRequestMapping != null) {
+			produces = controllerRequestMapping.produces();
+		}
+
+		if (produces.length > 0) {
+			ArrayList<MediaType> acceptableMediaTypes = new ArrayList<>();
+			for (String acceptType : produces) {
+				acceptableMediaTypes.add(MediaType.valueOf(acceptType));
+			}
+			headers.setAccept(acceptableMediaTypes);
+		}
+
+		return headers;
 	}
 
 	private String extractUrl(RequestMapping requestMapping) {
@@ -97,14 +133,20 @@ public class BeanProxyCreator {
 		return foundUrl;
 	}
 
-	private RequestMethod extractRequestMethod(RequestMapping requestMapping) {
+	private HttpMethod extractRequestMethod(RequestMapping requestMapping, RequestMapping controllerRequestMapping) {
 		RequestMethod[] requestMethods = requestMapping.method();
 		if (requestMethods == null || requestMethods.length == 0) {
-			LOG.warn("No request mapping requestMethods found");
-			throw new IllegalStateException("No request mapping specified!");
+			if (controllerRequestMapping == null ||
+					controllerRequestMapping.method() == null ||
+					controllerRequestMapping.method().length == 0) {
+				LOG.warn("No request mapping requestMethods found");
+				throw new IllegalStateException("No request mapping specified!");
+			} else {
+				requestMethods = controllerRequestMapping.method();
+			}
 		} else if (requestMethods.length > 1) {
 			LOG.warn("More than one request method found. Using first specified");
 		}
-		return requestMethods[0];
+		return HttpMethod.valueOf(requestMethods[0].name());
 	}
 }

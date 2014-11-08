@@ -1,6 +1,5 @@
-package eu.codearte.restofag
+package eu.codearte.restofag.config
 
-import eu.codearte.restofag.config.EnableRestofag
 import eu.codearte.restofag.endpoint.EndpointProvider
 import eu.codearte.restofag.endpoint.StubEndpointProvider
 import eu.codearte.restofag.sample.RestClientInterface

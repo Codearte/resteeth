@@ -5,7 +5,6 @@ import eu.codearte.restofag.config.sample.RestInterfaceWithCustomQualifier
 import eu.codearte.restofag.config.sample.SampleEndpoint
 import eu.codearte.restofag.endpoint.EndpointProvider
 import eu.codearte.restofag.endpoint.StubEndpointProvider
-import org.springframework.aop.Advisor
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
