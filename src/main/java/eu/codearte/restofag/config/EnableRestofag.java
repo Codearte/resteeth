@@ -18,6 +18,6 @@ import java.lang.annotation.Target;
 @Import(RestofagDefinitionRegistrar.class)
 public @interface EnableRestofag {
 
-	String[] basePackages() default {""};
+	String[] basePackages() default {};
 
 }

@@ -58,7 +58,7 @@ class RestTemplateInvoker {
 	}
 
 	private Map<String, ?> buildArgumentsMap(HashMap<Integer, String> urlVariables, Object[] arguments) {
-		HashMap<String, Object> stringHashMap = new HashMap<>();
+		Map<String, Object> stringHashMap = new HashMap<>();
 
 		for (int i = 0; i < arguments.length; i++) {
 			stringHashMap.put(urlVariables.get(i), arguments[i]);

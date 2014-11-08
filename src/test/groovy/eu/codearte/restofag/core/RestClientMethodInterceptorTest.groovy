@@ -29,10 +29,14 @@ class RestClientMethodInterceptorTest extends Specification {
 	@Autowired
 	RestTemplate restTemplate
 
+	MockRestServiceServer mockServer
+
+	void setup() {
+		mockServer = MockRestServiceServer.createServer(restTemplate)
+	}
+
 	def "should invoke get method"() {
 		given:
-			MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate)
-
 			mockServer.expect(requestTo("/users/42")).andExpect(method(HttpMethod.GET))
 					.andRespond(withSuccess("{ \"id\" : \"42\", \"name\" : \"John\"}", MediaType.APPLICATION_JSON))
 

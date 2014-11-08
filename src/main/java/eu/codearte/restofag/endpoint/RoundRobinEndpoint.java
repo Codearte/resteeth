@@ -16,6 +16,6 @@ class RoundRobinEndpoint implements EndpointProvider {
 
 	@Override
 	public String getEndpoint() {
-		return endpointUrls[counter.getAndIncrement() % endpointUrls.length];
+		return endpointUrls[Math.abs(counter.getAndIncrement()) % endpointUrls.length];
 	}
 }

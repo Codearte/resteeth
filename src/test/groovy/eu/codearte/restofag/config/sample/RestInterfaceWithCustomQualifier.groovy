@@ -7,5 +7,5 @@ import eu.codearte.restofag.annotation.RestClient
  */
 @RestClient
 @SampleEndpoint
-interface RestInterface {
+interface RestInterfaceWithCustomQualifier {
 }

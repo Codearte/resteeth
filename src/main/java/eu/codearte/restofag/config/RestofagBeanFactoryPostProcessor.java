@@ -7,14 +7,15 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.type.MethodMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -68,7 +69,7 @@ class RestofagBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Orde
 			return BeanFactoryUtils.beanOfTypeIncludingAncestors(beanFactory, EndpointProvider.class);
 		}
 
-		Annotation qualifierAnnotation = null;
+		Annotation qualifierAnnotation = qualifier;
 
 		for (Annotation annotation : getBeanClass(beanDefinition).getAnnotations()) {
 			if (qualifier != annotation && annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
@@ -79,9 +80,8 @@ class RestofagBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Orde
 		String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, EndpointProvider.class, true, true);
 
 		for (String beanName : beanNames) {
-			AbstractBeanDefinition endpointBeanDefinition = (AbstractBeanDefinition) beanFactory.getBeanDefinition(beanName);
 
-			if (checkQualifier(endpointBeanDefinition, qualifierAnnotation)) {
+			if (checkQualifier(beanFactory.getBeanDefinition(beanName), qualifierAnnotation)) {
 				return (EndpointProvider) beanFactory.getBean(beanName);
 			}
 		}
@@ -89,7 +89,27 @@ class RestofagBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Orde
 		throw new NoSuchBeanDefinitionException(EndpointProvider.class, "Cannot find proper for " + beanDefinition.getBeanClassName());
 	}
 
-	private boolean checkQualifier(AbstractBeanDefinition endpointBeanDefinition, Annotation qualifierAnnotation) {
+	private boolean checkQualifier(BeanDefinition endpointBeanDefinition, Annotation qualifierAnnotation) {
+		if (endpointBeanDefinition instanceof AnnotatedBeanDefinition) {
+			AnnotatedBeanDefinition annotatedBeanDefinition = (AnnotatedBeanDefinition) endpointBeanDefinition;
+			String qualifierCanonicalName = qualifierAnnotation.annotationType().getCanonicalName();
+
+			MethodMetadata factoryMethodMetadata = annotatedBeanDefinition.getFactoryMethodMetadata();
+
+			if (factoryMethodMetadata.isAnnotated(qualifierCanonicalName)) {
+				if (qualifierAnnotation instanceof Qualifier) {
+					Object value1 = factoryMethodMetadata.getAnnotationAttributes(qualifierCanonicalName).get("value");
+					Object value2 = ((Qualifier) qualifierAnnotation).value();
+					if (value1 == null || value2 == null) {
+						throw new IllegalArgumentException("No value found on Qualifier annotation");
+					}
+					if (value1.equals(value2)) {
+						return true;
+					}
+				}
+				return true;
+			}
+		}
 		return false;
 	}
 
