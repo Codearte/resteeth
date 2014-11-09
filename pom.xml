@@ -5,7 +5,7 @@
 	<groupId>eu.codearte.resteeth</groupId>
 	<artifactId>resteeth</artifactId>
 	<name>ResTeeth</name>
-	<version>0.1.0</version>
+	<version>0.2.0-SNAPSHOT</version>
 
 	<description>ResTeeth - dynamic REST client for Spring</description>
 	<url>https://github.com/Codearte/resteeth/</url>
