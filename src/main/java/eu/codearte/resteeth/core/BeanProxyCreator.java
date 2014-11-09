@@ -29,11 +29,14 @@ public class BeanProxyCreator {
 
 	private final RestTemplate restTemplate;
 
+	private final MetadataExtractor metadataExtractor = new MetadataExtractor();
+
 	public BeanProxyCreator(RestTemplate restTemplate) {
 		this.restTemplate = restTemplate;
 	}
 
 	public Object createProxyBean(Class<?> beanClass, EndpointProvider endpointProvider) {
+		LOG.info("Creating Resteeth bean for interface {}", beanClass.getCanonicalName());
 		ProxyFactory proxyFactory = new ProxyFactory();
 
 		Map<Method, MethodMetadata> methodMetadataMap = extractInterfaceInformation(beanClass);
@@ -51,102 +54,9 @@ public class BeanProxyCreator {
 		Map<Method, MethodMetadata> methodMetadataMap = new HashMap<>();
 		RequestMapping controllerRequestMapping = beanClass.getAnnotation(RequestMapping.class);
 		for (Method method : beanClass.getMethods()) {
-			methodMetadataMap.put(method, extractMethodMetadata(method, controllerRequestMapping));
+			methodMetadataMap.put(method, metadataExtractor.extractMethodMetadata(method, controllerRequestMapping));
 		}
 		return methodMetadataMap;
 	}
 
-	private MethodMetadata extractMethodMetadata(Method method, RequestMapping controllerRequestMapping) {
-		RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
-
-		String methodUrl = extractUrl(controllerRequestMapping) + extractUrl(requestMapping);
-
-		Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-		Integer requestBody = null;
-		HashMap<Integer, String> urlVariables = new HashMap<>();
-		if (parameterAnnotations != null && parameterAnnotations.length > 0) {
-			for (int i = 0; i < parameterAnnotations.length; i++) {
-				for (Annotation parameterAnnotation : parameterAnnotations[i]) {
-					if (PathVariable.class.isAssignableFrom(parameterAnnotation.getClass())) {
-						urlVariables.put(i, ((PathVariable) parameterAnnotation).value());
-					}
-					if (RequestBody.class.isAssignableFrom(parameterAnnotation.getClass())) {
-						requestBody = i;
-					}
-				}
-			}
-		}
-
-		return new MethodMetadata(methodUrl,
-				extractRequestMethod(requestMapping, controllerRequestMapping),
-				extractReturnType(method),
-				requestBody,
-				urlVariables,
-				extractHeaders(requestMapping, controllerRequestMapping));
-	}
-
-	private Class<?> extractReturnType(Method method) {
-		return method.getReturnType() == void.class ? Void.class : method.getReturnType();
-	}
-
-	private HttpHeaders extractHeaders(RequestMapping requestMapping, RequestMapping controllerRequestMapping) {
-		HttpHeaders headers = new HttpHeaders();
-
-		String[] consumes = requestMapping.consumes();
-		if (consumes.length == 0 && controllerRequestMapping != null) {
-			consumes = controllerRequestMapping.consumes();
-		}
-
-		if (consumes.length > 0) {
-			headers.setContentType(MediaType.valueOf(consumes[0]));
-		}
-
-		String[] produces = requestMapping.produces();
-		if (produces.length == 0 && controllerRequestMapping != null) {
-			produces = controllerRequestMapping.produces();
-		}
-
-		if (produces.length > 0) {
-			ArrayList<MediaType> acceptableMediaTypes = new ArrayList<>();
-			for (String acceptType : produces) {
-				acceptableMediaTypes.add(MediaType.valueOf(acceptType));
-			}
-			headers.setAccept(acceptableMediaTypes);
-		}
-
-		return headers;
-	}
-
-	private String extractUrl(RequestMapping requestMapping) {
-		String foundUrl = "";
-		if (requestMapping == null) {
-			return foundUrl;
-		}
-
-		String[] urls = requestMapping.value();
-		if (urls != null && urls.length > 0) {
-			foundUrl = urls[0];
-			if (urls.length > 1) {
-				LOG.warn("Found more than one URL mapping. Using first specified: {}", foundUrl);
-			}
-		}
-		return foundUrl;
-	}
-
-	private HttpMethod extractRequestMethod(RequestMapping requestMapping, RequestMapping controllerRequestMapping) {
-		RequestMethod[] requestMethods = requestMapping.method();
-		if (requestMethods == null || requestMethods.length == 0) {
-			if (controllerRequestMapping == null ||
-					controllerRequestMapping.method() == null ||
-					controllerRequestMapping.method().length == 0) {
-				LOG.warn("No request mapping requestMethods found");
-				throw new IllegalStateException("No request mapping specified!");
-			} else {
-				requestMethods = controllerRequestMapping.method();
-			}
-		} else if (requestMethods.length > 1) {
-			LOG.warn("More than one request method found. Using first specified");
-		}
-		return HttpMethod.valueOf(requestMethods[0].name());
-	}
 }
