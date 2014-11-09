@@ -1,5 +1,7 @@
 package eu.codearte.resteeth.config
 
+import eu.codearte.resteeth.config.attributes.RestClientWithEndpoint
+import eu.codearte.resteeth.config.attributes.RestClientWithEndpoints
 import eu.codearte.resteeth.config.qualifier.RestInterfaceWithQualifier
 import eu.codearte.resteeth.config.sample.RestInterfaceWithCustomQualifier
 import eu.codearte.resteeth.config.sample.SampleEndpoint
@@ -82,6 +84,34 @@ class ResteethBeanFactoryPostProcessorTest extends Specification {
 			def context = new AnnotationConfigApplicationContext(SampleQualifierConfiguration)
 		when:
 			def bean = context.getBean(RestInterfaceWithQualifier.class)
+		then:
+			// check if proper endpoint is injected
+			noExceptionThrown()
+			bean != null
+	}
+
+	@Configuration
+	@EnableResteeth(basePackages = "eu.codearte.resteeth.config.attributes")
+	static class SampleEndpointsAttributeConfiguration {
+
+	}
+
+	def "should create fixed EndpointProvided from RestClient.endpoints() attribute"() {
+		given:
+			def context = new AnnotationConfigApplicationContext(SampleEndpointsAttributeConfiguration)
+		when:
+			def bean = context.getBean(RestClientWithEndpoint.class)
+		then:
+			// check if proper endpoint is injected
+			noExceptionThrown()
+			bean != null
+	}
+
+	def "should create round robin EndpointProvided from RestClient.endpoints() attribute"() {
+		given:
+			def context = new AnnotationConfigApplicationContext(SampleEndpointsAttributeConfiguration)
+		when:
+			def bean = context.getBean(RestClientWithEndpoints.class)
 		then:
 			// check if proper endpoint is injected
 			noExceptionThrown()

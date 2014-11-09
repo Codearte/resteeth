@@ -3,6 +3,7 @@ package eu.codearte.resteeth.config;
 import eu.codearte.resteeth.annotation.RestClient;
 import eu.codearte.resteeth.core.BeanProxyCreator;
 import eu.codearte.resteeth.endpoint.EndpointProvider;
+import eu.codearte.resteeth.endpoint.Endpoints;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactoryUtils;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -63,7 +65,16 @@ class ResteethBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Orde
 
 	private EndpointProvider findEndpointProvider(BeanDefinition beanDefinition, ConfigurableListableBeanFactory beanFactory) {
 
-		Qualifier qualifier = AnnotationUtils.findAnnotation(getBeanClass(beanDefinition), Qualifier.class);
+		Class<?> beanClass = getBeanClass(beanDefinition);
+
+		RestClient restClient = AnnotationUtils.findAnnotation(beanClass, RestClient.class);
+		if (restClient.endpoints().length == 1) {
+			return Endpoints.fixedEndpoint(restClient.endpoints()[0]);
+		} else if (restClient.endpoints().length > 1) {
+			return Endpoints.roundRobinEndpoint(restClient.endpoints());
+		}
+
+		Qualifier qualifier = AnnotationUtils.findAnnotation(beanClass, Qualifier.class);
 
 		if (qualifier == null) {
 			// without qualifier
@@ -72,7 +83,7 @@ class ResteethBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Orde
 
 		Annotation qualifierAnnotation = qualifier;
 
-		for (Annotation annotation : getBeanClass(beanDefinition).getAnnotations()) {
+		for (Annotation annotation : beanClass.getAnnotations()) {
 			if (qualifier != annotation && annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
 				qualifierAnnotation = annotation;
 			}
