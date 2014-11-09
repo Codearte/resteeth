@@ -3,6 +3,8 @@ Resteeth
 
 Resteeth dynamically creates rest clients based on plain java interface with Spring MVC annotations. Ready to use beans are available through standard Spring injections.
 
+[![Build Status](https://travis-ci.org/Codearte/resteeth.svg)](https://travis-ci.org/Codearte/resteeth) [![Coverage Status](https://img.shields.io/coveralls/Codearte/resteeth.svg)](https://coveralls.io/r/Codearte/resteeth?branch=master) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.codearte.resteeth/resteeth/badge.svg)](https://maven-badges.herokuapp.com/maven-central/eu.codearte.resteeth/resteeth) [![Apache 2](http://img.shields.io/badge/license-Apache%202-red.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+
 Usage
 -----
 
