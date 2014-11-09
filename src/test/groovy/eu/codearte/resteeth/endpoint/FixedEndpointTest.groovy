@@ -11,7 +11,7 @@ class FixedEndpointTest extends Specification {
 
 	def "should return fixed url"() {
 		given:
-			EndpointProvider sut = new FixedEndpoint(ENDPOINT_URL)
+			EndpointProvider sut = Endpoints.fixedEndpoint(ENDPOINT_URL)
 		when:
 			def endpoint1 = sut.getEndpoint()
 			def endpoint2 = sut.getEndpoint()

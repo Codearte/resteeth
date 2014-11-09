@@ -12,7 +12,7 @@ class RoundRobinEndpointTest extends Specification {
 
 	def "should return fixed url"() {
 		given:
-			EndpointProvider sut = new RoundRobinEndpoint(ENDPOINT_1_URL, ENDPOINT_2_URL)
+			EndpointProvider sut = Endpoints.roundRobinEndpoint(ENDPOINT_1_URL, ENDPOINT_2_URL)
 		when:
 			def endpoint1 = sut.getEndpoint()
 			def endpoint2 = sut.getEndpoint()
