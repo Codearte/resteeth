@@ -17,7 +17,7 @@ In Maven projects (pom.xml):
         <dependency>
             <groupId>eu.codearte.resteeth</groupId>
             <artifactId>resteeth</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.0</version>
         </dependency>
     </dependencies>
     ...
@@ -31,7 +31,7 @@ repositories {
    mavenCentral()
 }
 ...
-testCompile 'eu.codearte:resteeth:0.1.0-SNAPSHOT'
+testCompile 'eu.codearte.resteeth:resteeth:0.1.0'
 ```
 
 2) Prepare interface
