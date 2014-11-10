@@ -1,16 +1,14 @@
 package eu.codearte.resteeth.config
 
-import eu.codearte.resteeth.config.attributes.RestClientWithEndpoint
-import eu.codearte.resteeth.config.attributes.RestClientWithEndpoints
-import eu.codearte.resteeth.config.qualifier.RestInterfaceWithQualifier
-import eu.codearte.resteeth.config.sample.RestInterfaceWithCustomQualifier
-import eu.codearte.resteeth.config.sample.SampleEndpoint
+import eu.codearte.resteeth.TestObjectWrapper
+import eu.codearte.resteeth.annotation.RestClient
+import eu.codearte.resteeth.config.constructor.TestBean
 import eu.codearte.resteeth.endpoint.EndpointProvider
 import eu.codearte.resteeth.endpoint.StubEndpointProvider
-import org.springframework.beans.factory.NoSuchBeanDefinitionException
-import org.springframework.beans.factory.annotation.Qualifier
+import eu.codearte.resteeth.sample.RestClientInterface
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import spock.lang.Specification
 
@@ -20,101 +18,77 @@ import spock.lang.Specification
 class ResteethBeanFactoryPostProcessorTest extends Specification {
 
 	@Configuration
-	@EnableResteeth(basePackages = "eu.codearte.resteeth.config.sample")
-	static class SampleConfigurationWithoutProperEndpointProvider {
+	@EnableResteeth
+	static class SampleConfigurationInject {
+
+		@RestClient
+		private RestClientInterface restClientInterface
+
+		@Bean
+		TestObjectWrapper objectWrapper() {
+			new TestObjectWrapper(restClientInterface)
+		}
+
 		@Bean
 		EndpointProvider endpointProvider() {
 			new StubEndpointProvider()
 		}
 	}
 
-	def "should throw exception when no proper EndpointProvider is found"() {
+	def "should inject RestClientInterface into field"() {
+		given:
+			def context = new AnnotationConfigApplicationContext(SampleConfigurationInject)
 		when:
-			new AnnotationConfigApplicationContext(SampleConfigurationWithoutProperEndpointProvider)
+			def bean = context.getBean(TestObjectWrapper)
 		then:
-			def exception = thrown(NoSuchBeanDefinitionException)
-			exception.message.contains("Cannot find proper for eu.codearte.resteeth.config.sample.RestInterface")
+			bean != null
+			bean.target instanceof RestClientInterface
 	}
 
 	@Configuration
-	@EnableResteeth(basePackages = "eu.codearte.resteeth.config.sample")
-	static class SampleCustomQualifierConfiguration {
+	@EnableResteeth
+	static class SampleMethodInject {
+
 		@Bean
-		@SampleEndpoint
+		TestObjectWrapper objectWrapper(@RestClient RestClientInterface restClientInterface) {
+			new TestObjectWrapper(restClientInterface)
+		}
+
+		@Bean
 		EndpointProvider endpointProvider() {
 			new StubEndpointProvider()
 		}
-
-		@Bean
-		@Qualifier("test2")
-		EndpointProvider endpointProvider2() {
-			new StubEndpointProvider()
-		}
 	}
 
-	def "should find proper EndpointProvided using @SampleEndpoint annotation"() {
+	def "should inject RestClientInterface into method parameter"() {
 		given:
-			def context = new AnnotationConfigApplicationContext(SampleCustomQualifierConfiguration)
+			def context = new AnnotationConfigApplicationContext(SampleMethodInject)
 		when:
-			def bean = context.getBean(RestInterfaceWithCustomQualifier.class)
+			def bean = context.getBean(TestObjectWrapper)
 		then:
-			// check if proper endpoint is injected
-			noExceptionThrown()
 			bean != null
+			bean.target instanceof RestClientInterface
 	}
 
 	@Configuration
-	@EnableResteeth(basePackages = "eu.codearte.resteeth.config.qualifier")
-	static class SampleQualifierConfiguration {
+	@EnableResteeth
+	@ComponentScan("eu.codearte.resteeth.config.constructor")
+	static class ConstructorInjectionConfiguration {
+
 		@Bean
-		@Qualifier("test")
 		EndpointProvider endpointProvider() {
 			new StubEndpointProvider()
 		}
-
-		@Bean
-		@Qualifier("test2")
-		EndpointProvider endpointProvider2() {
-			new StubEndpointProvider()
-		}
 	}
 
-	def "should find proper EndpointProvided using @Qualifier annotation"() {
+	def "should inject RestClientInterface into constructor"() {
 		given:
-			def context = new AnnotationConfigApplicationContext(SampleQualifierConfiguration)
+			def context = new AnnotationConfigApplicationContext(ConstructorInjectionConfiguration)
 		when:
-			def bean = context.getBean(RestInterfaceWithQualifier.class)
+			def bean = context.getBean(TestBean)
 		then:
-			// check if proper endpoint is injected
-			noExceptionThrown()
 			bean != null
+			bean.restClientInterface instanceof RestClientInterface
 	}
 
-	@Configuration
-	@EnableResteeth(basePackages = "eu.codearte.resteeth.config.attributes")
-	static class SampleEndpointsAttributeConfiguration {
-
-	}
-
-	def "should create fixed EndpointProvided from RestClient.endpoints() attribute"() {
-		given:
-			def context = new AnnotationConfigApplicationContext(SampleEndpointsAttributeConfiguration)
-		when:
-			def bean = context.getBean(RestClientWithEndpoint.class)
-		then:
-			// check if proper endpoint is injected
-			noExceptionThrown()
-			bean != null
-	}
-
-	def "should create round robin EndpointProvided from RestClient.endpoints() attribute"() {
-		given:
-			def context = new AnnotationConfigApplicationContext(SampleEndpointsAttributeConfiguration)
-		when:
-			def bean = context.getBean(RestClientWithEndpoints.class)
-		then:
-			// check if proper endpoint is injected
-			noExceptionThrown()
-			bean != null
-	}
 }

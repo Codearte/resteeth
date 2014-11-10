@@ -5,69 +5,133 @@ import eu.codearte.resteeth.core.BeanProxyCreator;
 import eu.codearte.resteeth.endpoint.EndpointProvider;
 import eu.codearte.resteeth.endpoint.Endpoints;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.beans.PropertyValues;
+import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
+import org.springframework.beans.factory.annotation.InjectionMetadata;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.Ordered;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.MethodMetadata;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Set;
 
 /**
  * @author Jakub Kubrynski
  */
-class ResteethBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Ordered, BeanClassLoaderAware {
+class ResteethBeanFactoryPostProcessor implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
 
 	private static final String RESTEETH_REST_TEMPLATE_BEAN_NAME = "resteethRestTemplate";
-	private final ClassPathScanningCandidateComponentProvider candidateComponentProvider;
-	private final String[] basePackages;
-	private ClassLoader classLoader;
+	private ConfigurableListableBeanFactory beanFactory;
+	private BeanProxyCreator beanProxyCreator;
 
-	ResteethBeanFactoryPostProcessor(String[] basePackagesParam) {
-		Assert.notEmpty(basePackagesParam);
-		basePackages = basePackagesParam;
-		candidateComponentProvider = new RestClientComponentProvider(false);
-		candidateComponentProvider.addIncludeFilter(new AnnotationTypeFilter(RestClient.class));
+	@Override
+	public PropertyValues postProcessPropertyValues(PropertyValues pvs, PropertyDescriptor[] pds, Object bean,
+																									String beanName) throws BeansException {
+
+		Class<?> beanClass = bean.getClass();
+
+		// if @Configuration enhanced by CGLib use superclass
+		if (ClassUtils.isCglibProxy(bean)) {
+			beanClass = beanClass.getSuperclass();
+		}
+
+		ArrayList<InjectionMetadata.InjectedElement> injectedElements = buildInjectedElements(beanClass);
+		InjectionMetadata injectionMetadata = new InjectionMetadata(beanClass, injectedElements);
+
+		try {
+			injectionMetadata.inject(bean, beanName, pvs);
+		} catch (Throwable th) {
+			throw new BeanCreationException(beanName, "Injection of rest clients failed", th);
+		}
+		return pvs;
 	}
 
 	@Override
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-		RestTemplate restTemplate = provideRestTemplate(beanFactory);
-		BeanProxyCreator beanProxyCreator = new BeanProxyCreator(restTemplate);
+	public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+		for (Constructor<?> constructor : beanClass.getDeclaredConstructors()) {
+			registerFromParameters(constructor.getParameterTypes(), constructor.getParameterAnnotations());
+		}
 
-		for (String basePackage : basePackages) {
-			Set<BeanDefinition> eu = candidateComponentProvider.findCandidateComponents(basePackage);
-			for (BeanDefinition beanDefinition : eu) {
-				Class<?> beanClass = getBeanClass(beanDefinition);
-				if (beanNotDefinedExplicitly(beanFactory, beanClass)) {
-					EndpointProvider endpointProvider = findEndpointProvider(beanDefinition, beanFactory);
-					beanFactory.registerSingleton(beanDefinition.getBeanClassName(),
-							beanProxyCreator.createProxyBean(beanClass, endpointProvider));
+		return null;
+	}
+
+	private ArrayList<InjectionMetadata.InjectedElement> buildInjectedElements(Class<?> beanClass) throws BeansException {
+		ArrayList<InjectionMetadata.InjectedElement> elements = new ArrayList<>();
+
+		for (Field field : beanClass.getDeclaredFields()) {
+			RestClient annotation = field.getAnnotation(RestClient.class);
+			if (annotation != null) {
+				Class<?> fieldType = field.getType();
+				if (beanNotDefinedExplicitly(beanFactory, fieldType)) {
+					InjectionMetadata.InjectedElement injectedElement = new FieldInjection(field, annotation);
+					elements.add(injectedElement);
+				}
+			}
+		}
+
+		for (Method method : beanClass.getDeclaredMethods()) {
+			Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+			registerFromParameters(method.getParameterTypes(), parameterAnnotations);
+
+		}
+		return elements;
+	}
+
+	private void registerFromParameters(Class<?>[] parameterTypes, Annotation[][] parameterAnnotations) {
+		for (int i = 0; i < parameterAnnotations.length; i++) {
+			for (Annotation annotation : parameterAnnotations[i]) {
+				if (annotation.annotationType() == RestClient.class) {
+					Class<?> fieldType = parameterTypes[i];
+					if (beanNotDefinedExplicitly(beanFactory, fieldType)) {
+						EndpointProvider endpointProvider = findEndpointProvider(fieldType, beanFactory, (RestClient) annotation);
+						Object proxyBean = beanProxyCreator.createProxyBean(fieldType, endpointProvider);
+						// walkaround - we have to register bean in context due to lack of possibility to inject into method parameter
+						beanFactory.registerSingleton(fieldType.getName(), proxyBean);
+					}
 				}
 			}
 		}
 	}
 
-	private EndpointProvider findEndpointProvider(BeanDefinition beanDefinition, ConfigurableListableBeanFactory beanFactory) {
+	private class FieldInjection extends InjectionMetadata.InjectedElement {
 
-		Class<?> beanClass = getBeanClass(beanDefinition);
+		private final RestClient annotation;
 
-		RestClient restClient = AnnotationUtils.findAnnotation(beanClass, RestClient.class);
+		private FieldInjection(Field field, RestClient annotation) {
+			super(field, null);
+			this.annotation = annotation;
+		}
+
+		@Override
+		protected Object getResourceToInject(Object target, String requestingBeanName) {
+			EndpointProvider endpointProvider = findEndpointProvider(this.getResourceType(), beanFactory, annotation);
+			return beanProxyCreator.createProxyBean(this.getResourceType(), endpointProvider);
+		}
+	}
+
+	private boolean beanNotDefinedExplicitly(ConfigurableListableBeanFactory configurableListableBeanFactory, Class<?> beanClass) {
+		String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(configurableListableBeanFactory, beanClass, true, true);
+		return beanNames == null || beanNames.length == 0;
+	}
+
+	private EndpointProvider findEndpointProvider(Class<?> beanClass, ConfigurableListableBeanFactory beanFactory,
+																								RestClient restClient) {
 		if (restClient.endpoints().length == 1) {
 			return Endpoints.fixedEndpoint(restClient.endpoints()[0]);
 		} else if (restClient.endpoints().length > 1) {
@@ -98,7 +162,7 @@ class ResteethBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Orde
 			}
 		}
 
-		throw new NoSuchBeanDefinitionException(EndpointProvider.class, "Cannot find proper for " + beanDefinition.getBeanClassName());
+		throw new NoSuchBeanDefinitionException(EndpointProvider.class, "Cannot find proper for " + beanClass.getCanonicalName());
 	}
 
 	private boolean checkQualifier(BeanDefinition endpointBeanDefinition, Annotation qualifierAnnotation) {
@@ -125,6 +189,13 @@ class ResteethBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Orde
 		return false;
 	}
 
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		this.beanFactory = (ConfigurableListableBeanFactory) beanFactory;
+		RestTemplate restTemplate = provideRestTemplate(this.beanFactory);
+		beanProxyCreator = new BeanProxyCreator(restTemplate);
+	}
+
 	private RestTemplate provideRestTemplate(ConfigurableListableBeanFactory configurableListableBeanFactory) {
 		if (beanNotDefinedExplicitly(configurableListableBeanFactory, RestTemplate.class)) {
 			ArrayList<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
@@ -134,27 +205,18 @@ class ResteethBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Orde
 		return configurableListableBeanFactory.getBean(RestTemplate.class);
 	}
 
-	private boolean beanNotDefinedExplicitly(ConfigurableListableBeanFactory configurableListableBeanFactory, Class<?> beanClass) {
-		String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(configurableListableBeanFactory, beanClass, true, true);
-		return beanNames == null || beanNames.length == 0;
-	}
-
-	private Class<?> getBeanClass(BeanDefinition beanDefinition) {
-		try {
-			return classLoader.loadClass(beanDefinition.getBeanClassName());
-		} catch (ClassNotFoundException e) {
-			throw new NoClassDefFoundError("No class found: " + e.getMessage());
-		}
+	@Override
+	public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
+		return true;
 	}
 
 	@Override
-	public int getOrder() {
-		return Ordered.LOWEST_PRECEDENCE;
+	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		return bean;
 	}
 
 	@Override
-	public void setBeanClassLoader(ClassLoader classLoader) {
-		this.classLoader = classLoader;
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+		return bean;
 	}
-
 }

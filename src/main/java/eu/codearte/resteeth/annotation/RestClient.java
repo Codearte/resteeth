@@ -10,8 +10,9 @@ import java.lang.annotation.Target;
  * @author Jakub Kubrynski
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})
 @Documented
 public @interface RestClient {
 	String[] endpoints() default {};
+	String endpointProviderBeanName() default "";
 }

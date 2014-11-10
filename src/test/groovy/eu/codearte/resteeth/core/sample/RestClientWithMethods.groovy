@@ -1,6 +1,5 @@
 package eu.codearte.resteeth.core.sample
 
-import eu.codearte.resteeth.annotation.RestClient
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -9,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMethod
 /**
  * @author Jakub Kubrynski
  */
-@RestClient
 interface RestClientWithMethods {
 
 	@RequestMapping(value = "/users/{id}", method = RequestMethod.GET)

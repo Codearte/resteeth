@@ -1,5 +1,6 @@
 package eu.codearte.resteeth.core
 
+import eu.codearte.resteeth.annotation.RestClient
 import eu.codearte.resteeth.core.sample.RestClientWithMethods
 import eu.codearte.resteeth.core.sample.RestMethodsConfig
 import eu.codearte.resteeth.core.sample.User
@@ -23,7 +24,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @ContextConfiguration(classes = RestMethodsConfig)
 class RestClientMethodInterceptorTest extends Specification {
 
-	@Autowired
+	@RestClient
 	RestClientWithMethods restClient
 
 	@Autowired
