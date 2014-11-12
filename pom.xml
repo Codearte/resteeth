@@ -40,6 +40,12 @@
 			<version>${spring.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-autoconfigure</artifactId>
+			<version>1.1.8.RELEASE</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<!-- Jackson -->
 		<dependency>
