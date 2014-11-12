@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMethod
 import spock.lang.Specification
 
 /**
+ * @author Mariusz Smykula
  * @author Jakub Kubrynski
  */
-
 @ContextConfiguration(classes = Application.class, loader = SpringApplicationContextLoader.class)
 @WebAppConfiguration
 @IntegrationTest

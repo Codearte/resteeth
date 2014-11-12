@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * @author Jakub Kubrynski
+ * @author Mariusz Smykula
  */
 @RestController
 class EchoServer {

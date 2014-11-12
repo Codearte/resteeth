@@ -6,6 +6,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * @author Mariusz Smykula
+ */
 @Configuration
 @ConditionalOnClass(RestClient.class)
 @ConditionalOnExpression("${resteeth.enabled:true}")
