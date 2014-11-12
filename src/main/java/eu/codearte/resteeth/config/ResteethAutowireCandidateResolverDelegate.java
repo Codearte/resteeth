@@ -29,7 +29,7 @@ import java.util.ArrayList;
 /**
  * @author Jakub Kubrynski
  */
-class AutowireCandidateResolverDelegate implements AutowireCandidateResolver, BeanFactoryAware {
+class ResteethAutowireCandidateResolverDelegate implements AutowireCandidateResolver, BeanFactoryAware {
 
 	private static final String RESTEETH_REST_TEMPLATE_BEAN_NAME = "resteethRestTemplate";
 	private ConfigurableListableBeanFactory beanFactory;
@@ -37,7 +37,7 @@ class AutowireCandidateResolverDelegate implements AutowireCandidateResolver, Be
 
 	private final AutowireCandidateResolver autowireCandidateResolver;
 
-	public AutowireCandidateResolverDelegate(AutowireCandidateResolver autowireCandidateResolver) {
+	public ResteethAutowireCandidateResolverDelegate(AutowireCandidateResolver autowireCandidateResolver) {
 		this.autowireCandidateResolver = autowireCandidateResolver;
 	}
 

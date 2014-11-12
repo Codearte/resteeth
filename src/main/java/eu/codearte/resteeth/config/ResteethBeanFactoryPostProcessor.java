@@ -20,8 +20,8 @@ class ResteethBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		LOG.info("Resteeth is being registered in Spring BeanFactory...");
 		DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) beanFactory;
-		AutowireCandidateResolverDelegate autowireCandidateResolverDelegate = new AutowireCandidateResolverDelegate(
+		ResteethAutowireCandidateResolverDelegate resteethAutowireCandidateResolverDelegate = new ResteethAutowireCandidateResolverDelegate(
 				defaultListableBeanFactory.getAutowireCandidateResolver());
-		defaultListableBeanFactory.setAutowireCandidateResolver(autowireCandidateResolverDelegate);
+		defaultListableBeanFactory.setAutowireCandidateResolver(resteethAutowireCandidateResolverDelegate);
 	}
 }

@@ -8,19 +8,17 @@ import eu.codearte.resteeth.config.sample.RestInterfaceWithCustomQualifier
 import eu.codearte.resteeth.config.sample.SampleEndpoint
 import eu.codearte.resteeth.endpoint.EndpointProvider
 import eu.codearte.resteeth.endpoint.StubEndpointProvider
-import org.springframework.beans.factory.NoSuchBeanDefinitionException
+import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import spock.lang.Ignore
 import spock.lang.Specification
 
 /**
  * @author Jakub Kubrynski
  */
-@Ignore
-class TempResteethBeanFactoryPostProcessorTest extends Specification {
+class EndpointProviderResolverTest extends Specification {
 
 	@Configuration
 	@EnableResteeth
@@ -40,16 +38,20 @@ class TempResteethBeanFactoryPostProcessorTest extends Specification {
 			def context = new AnnotationConfigApplicationContext(SampleConfigurationWithoutProperEndpointProvider)
 			context.getBean(RestInterfaceWithCustomQualifier.class)
 		then:
-			def exception = thrown(NoSuchBeanDefinitionException)
-			exception.message.contains("Cannot find proper for eu.codearte.resteeth.config.sample.RestInterface")
+			def exception = thrown(BeanCreationException)
+			exception.message.contains("Cannot find proper for eu.codearte.resteeth.config.sample.RestInterfaceWithCustomQualifier")
 	}
 
 	@Configuration
 	@EnableResteeth(basePackages = "eu.codearte.resteeth.config.sample")
 	static class SampleCustomQualifierConfiguration {
+
+		@RestClient
+		RestInterfaceWithCustomQualifier restInterfaceWithCustomQualifier
+
 		@Bean
 		@SampleEndpoint
-		EndpointProvider endpointProvider() {
+		EndpointProvider endpointProvidera() {
 			new StubEndpointProvider()
 		}
 
@@ -61,19 +63,20 @@ class TempResteethBeanFactoryPostProcessorTest extends Specification {
 	}
 
 	def "should find proper EndpointProvided using @SampleEndpoint annotation"() {
-		given:
-			def context = new AnnotationConfigApplicationContext(SampleCustomQualifierConfiguration)
 		when:
-			def bean = context.getBean(RestInterfaceWithCustomQualifier.class)
+			new AnnotationConfigApplicationContext(SampleCustomQualifierConfiguration)
 		then:
 			// check if proper endpoint is injected
 			noExceptionThrown()
-			bean != null
 	}
 
 	@Configuration
 	@EnableResteeth(basePackages = "eu.codearte.resteeth.config.qualifier")
 	static class SampleQualifierConfiguration {
+
+		@RestClient
+		RestInterfaceWithQualifier restInterfaceWithQualifier
+
 		@Bean
 		@Qualifier("test")
 		EndpointProvider endpointProvider() {
@@ -88,41 +91,37 @@ class TempResteethBeanFactoryPostProcessorTest extends Specification {
 	}
 
 	def "should find proper EndpointProvided using @Qualifier annotation"() {
-		given:
-			def context = new AnnotationConfigApplicationContext(SampleQualifierConfiguration)
 		when:
-			def bean = context.getBean(RestInterfaceWithQualifier.class)
+			new AnnotationConfigApplicationContext(SampleQualifierConfiguration)
 		then:
 			// check if proper endpoint is injected
 			noExceptionThrown()
-			bean != null
 	}
 
 	@Configuration
 	@EnableResteeth(basePackages = "eu.codearte.resteeth.config.attributes")
 	static class SampleEndpointsAttributeConfiguration {
 
+		@RestClient(endpoints = ["http://test"])
+		RestClientWithEndpoints restClientWithFixedEndpoints
+
+		@RestClient(endpoints = ["http://test", "http://test2"])
+		RestClientWithEndpoints restClientWithRoundRobinEndpoint
 	}
 
 	def "should create fixed EndpointProvided from RestClient.endpoints() attribute"() {
-		given:
-			def context = new AnnotationConfigApplicationContext(SampleEndpointsAttributeConfiguration)
 		when:
-			def bean = context.getBean(RestClientWithEndpoint.class)
+			new AnnotationConfigApplicationContext(SampleEndpointsAttributeConfiguration)
 		then:
 			// check if proper endpoint is injected
 			noExceptionThrown()
-			bean != null
 	}
 
 	def "should create round robin EndpointProvided from RestClient.endpoints() attribute"() {
-		given:
-			def context = new AnnotationConfigApplicationContext(SampleEndpointsAttributeConfiguration)
 		when:
-			def bean = context.getBean(RestClientWithEndpoints.class)
+			new AnnotationConfigApplicationContext(SampleEndpointsAttributeConfiguration)
 		then:
 			// check if proper endpoint is injected
 			noExceptionThrown()
-			bean != null
 	}
 }

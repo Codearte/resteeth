@@ -19,7 +19,7 @@ In Maven projects (pom.xml):
         <dependency>
             <groupId>eu.codearte.resteeth</groupId>
             <artifactId>resteeth</artifactId>
-            <version>0.1.0</version>
+            <version>0.2.0</version>
         </dependency>
     </dependencies>
     ...
@@ -33,72 +33,39 @@ repositories {
    mavenCentral()
 }
 ...
-testCompile 'eu.codearte.resteeth:resteeth:0.1.0'
+testCompile 'eu.codearte.resteeth:resteeth:0.2.0'
 ```
 
 2) Prepare interface
 
 ```java
-@RestClient
-interface UserRestInterface {
+interface FooRestInterface {
 
-	@RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
-	User getUser(@PathVariable("id") Integer id);
+	@RequestMapping(value = "/foos/{id}", method = RequestMethod.GET)
+	Foo getFoo(@PathVariable("id") Integer id);
 
-	@RequestMapping(value = "/users", method = RequestMethod.POST)
-	void postToUsers(@RequestBody User user);
+	@RequestMapping(value = "/foos", method = RequestMethod.POST)
+	void postFoo(@RequestBody Foo user);
 
 }
 ```
 
-3) Define endpoint
+3) Use!
+
+with single URL
 
 ```java
-@Bean
-public EndpointProvider endpointProvider() {
-	return Endpoints.fixedEndpoint("http://api.mydomain.com/");
-}
-```
-
-4) Use!
-
-```java
-@Autowired
+@RestClient(endpoints = {"http://api.mydomain.com"})
 private FooRestInterface fooRestInterface;
 
-User = fooRestInterface.getUser(123);
+Foo = fooRestInterface.getFoo(123);
 ```
 
-Advanced usage
------
+or with round robin load balancing
 
-1) Round robin load balancing
 ```java
-@Bean
-public EndpointProvider endpointProvider() {
-	return Endpoints.roundRobinEndpoint("http://api1.mydomain.com/",
-			"http://api2.mydomain.com/");
-}
-```
+@RestClient(endpoints = {"http://api1.mydomain.com/", "http://api2.mydomain.com/"})
+private FooRestInterface fooRestInterface;
 
-2) Different endpoints. When you're using more than one rest service in your application you have to match particular interface with proper EndpointProvider. It's done by qualifiers:
-```java
-@Qualifier
-@Retention(RetentionPolicy.RUNTIME)
-@Target([ElementType.METHOD, ElementType.TYPE])
-public @interface Foo {
-
-}
-
-@Bean
-@Foo
-public EndpointProvider fooEndpointProvider() {
-	return Endpoints.fixedEndpoint("http://foo.mydomain.com/");
-}
-
-@RestClient
-@Foo
-interface UserRestInterface {
-
-}
+Foo = fooRestInterface.getFoo(123);
 ```

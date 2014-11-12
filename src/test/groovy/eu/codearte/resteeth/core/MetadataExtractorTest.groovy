@@ -116,8 +116,8 @@ class MetadataExtractorTest extends Specification {
 		when:
 			def metadata = extractor.extractMethodMetadata(method, null)
 		then:
-				!metadata.httpHeaders.containsKey("ContentType")
-				!metadata.httpHeaders.containsKey("Accept")
+			!metadata.httpHeaders.containsKey("ContentType")
+			!metadata.httpHeaders.containsKey("Accept")
 	}
 
 	def "should inherit content types from controller"() {
