@@ -16,6 +16,8 @@ import java.lang.annotation.Target;
 @Documented
 @Autowired
 public @interface RestClient {
+
 	String[] endpoints() default {};
+
 	String endpointProviderBeanName() default "";
 }

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.support.AutowireCandidateResolver;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.MethodMetadata;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
@@ -143,6 +144,7 @@ class AutowireCandidateResolverDelegate implements AutowireCandidateResolver, Be
 	private RestTemplate provideRestTemplate(ConfigurableListableBeanFactory configurableListableBeanFactory) {
 		if (beanNotDefinedExplicitly(configurableListableBeanFactory, RestTemplate.class)) {
 			ArrayList<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+			messageConverters.add(new StringHttpMessageConverter());
 			messageConverters.add(new MappingJackson2HttpMessageConverter());
 			configurableListableBeanFactory.registerSingleton(RESTEETH_REST_TEMPLATE_BEAN_NAME, new RestTemplate(messageConverters));
 		}
