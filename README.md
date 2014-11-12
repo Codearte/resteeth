@@ -36,7 +36,19 @@ repositories {
 testCompile 'eu.codearte.resteeth:resteeth:0.2.0'
 ```
 
-2) Prepare interface
+2) Enable configuration
+
+In SpringBoot projects Resteeth will work out of the box without any configuration needed. For classical projects you have to annotate your configuration with `@EnableResteeth`
+
+```java
+@Configuration
+@EnableResteeth
+public class FooSpringConfig {
+
+}
+```
+
+3) Prepare interface
 
 ```java
 interface FooRestInterface {
@@ -50,7 +62,7 @@ interface FooRestInterface {
 }
 ```
 
-3) Use!
+4) Use!
 
 with single URL
 
