@@ -70,7 +70,7 @@ with single URL
 @RestClient(endpoints = {"http://api.mydomain.com"})
 private FooRestInterface fooRestInterface;
 
-Foo = fooRestInterface.getFoo(123);
+Foo foo = fooRestInterface.getFoo(123);
 ```
 
 or with round robin load balancing
@@ -79,5 +79,5 @@ or with round robin load balancing
 @RestClient(endpoints = {"http://api1.mydomain.com/", "http://api2.mydomain.com/"})
 private FooRestInterface fooRestInterface;
 
-Foo = fooRestInterface.getFoo(123);
+Foo foo = fooRestInterface.getFoo(123);
 ```
