@@ -6,7 +6,7 @@ package eu.codearte.resteeth.endpoint
 class StubEndpointProvider implements EndpointProvider {
 
 	@Override
-	String getEndpoint() {
-		""
+	URL getEndpoint() {
+		new URL("http://localhost")
 	}
 }
