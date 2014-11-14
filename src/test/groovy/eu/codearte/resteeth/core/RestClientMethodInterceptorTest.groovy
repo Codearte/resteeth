@@ -114,4 +114,13 @@ class RestClientMethodInterceptorTest extends Specification {
 		then:
 			mockServer.verify()
 	}
+
+	def "should not throw when calling toString()"() {
+		when:
+			def str = restClient.toString()
+
+		then:
+			str.startsWith("Proxy to ")
+	}
+
 }
