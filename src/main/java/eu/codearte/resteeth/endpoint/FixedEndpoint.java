@@ -20,6 +20,6 @@ class FixedEndpoint implements EndpointProvider {
 
 	@Override
 	public String toString() {
-		return endpointUrl;
+		return endpointUrl.toString();
 	}
 }
