@@ -8,7 +8,7 @@ import java.util.HashMap;
 /**
  * @author Jakub Kubrynski
  */
-class MethodMetadata {
+public class MethodMetadata {
 
 	private final String methodUrl;
 	private final HttpMethod requestMethod;
@@ -17,7 +17,7 @@ class MethodMetadata {
 	private final HashMap<Integer, String> urlVariables;
 	private final HttpHeaders httpHeaders;
 
-	MethodMetadata(String methodUrl, HttpMethod requestMethod, Class<?> returnType, Integer requestBody,
+	public MethodMetadata(String methodUrl, HttpMethod requestMethod, Class<?> returnType, Integer requestBody,
 								 HashMap<Integer, String> urlVariables, HttpHeaders httpHeaders) {
 		this.methodUrl = methodUrl;
 		this.requestMethod = requestMethod;
@@ -27,27 +27,27 @@ class MethodMetadata {
 		this.httpHeaders = httpHeaders;
 	}
 
-	String getMethodUrl() {
+	public String getMethodUrl() {
 		return methodUrl;
 	}
 
-	HttpMethod getRequestMethod() {
+	public HttpMethod getRequestMethod() {
 		return requestMethod;
 	}
 
-	Class<?> getReturnType() {
+	public Class<?> getReturnType() {
 		return returnType;
 	}
 
-	Integer getRequestBody() {
+	public Integer getRequestBody() {
 		return requestBody;
 	}
 
-	HashMap<Integer, String> getUrlVariables() {
+	public HashMap<Integer, String> getUrlVariables() {
 		return urlVariables;
 	}
 
-	HttpHeaders getHttpHeaders() {
+	public HttpHeaders getHttpHeaders() {
 		return httpHeaders;
 	}
 }

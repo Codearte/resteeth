@@ -1,32 +1,31 @@
 package eu.codearte.resteeth.core;
 
 import eu.codearte.resteeth.endpoint.EndpointProvider;
-import org.aopalliance.intercept.MethodInvocation;
+import eu.codearte.resteeth.handlers.RestInvocationHandler;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author Jakub Kubrynski
  */
-class RestTemplateInvoker {
+class RestTemplateInvoker implements RestInvocationHandler {
 
 	private final RestTemplate restTemplate;
 	private final EndpointProvider endpointProvider;
-	private final Map<Method, MethodMetadata> methodMetadataMap;
 
-	RestTemplateInvoker(RestTemplate restTemplate, EndpointProvider endpointProvider, Map<Method, MethodMetadata> methodMetadataMap) {
+	RestTemplateInvoker(RestTemplate restTemplate, EndpointProvider endpointProvider) {
 		this.restTemplate = restTemplate;
 		this.endpointProvider = endpointProvider;
-		this.methodMetadataMap = methodMetadataMap;
 	}
 
-	Object invokeRest(MethodInvocation invocation) {
-		MethodMetadata methodMetadata = methodMetadataMap.get(invocation.getMethod());
+	@Override
+	public Object proceed(RestInvocation invocation) {
+		MethodMetadata methodMetadata = invocation.getMetadata();
 		Map<String, ?> urlVariablesValues = buildArgumentsMap(methodMetadata.getUrlVariables(), invocation.getArguments());
 
 		String requestUrl = endpointProvider.getEndpoint() + methodMetadata.getMethodUrl();
@@ -61,7 +60,10 @@ class RestTemplateInvoker {
 	@Override
 	public String toString() {
 		return "RestTemplateInvoker(" + "restTemplate=" + restTemplate +
-				", endpointProvider=" + endpointProvider +
-				", methodMetadataMap=" + methodMetadataMap + ')';
+				", endpointProvider=" + endpointProvider + ')';
+	}
+
+	public int getOrder() {
+		return Ordered.LOWEST_PRECEDENCE;
 	}
 }

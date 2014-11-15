@@ -4,6 +4,7 @@ import eu.codearte.resteeth.annotation.RestClient;
 import eu.codearte.resteeth.core.BeanProxyCreator;
 import eu.codearte.resteeth.endpoint.EndpointProvider;
 import eu.codearte.resteeth.endpoint.Endpoints;
+import eu.codearte.resteeth.handlers.RestInvocationHandler;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -25,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * @author Jakub Kubrynski
@@ -138,7 +140,8 @@ class ResteethAutowireCandidateResolverDelegate implements AutowireCandidateReso
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 		this.beanFactory = (ConfigurableListableBeanFactory) beanFactory;
 		RestTemplate restTemplate = provideRestTemplate(this.beanFactory);
-		beanProxyCreator = new BeanProxyCreator(restTemplate);
+		final Collection<RestInvocationHandler> handlers = ((ConfigurableListableBeanFactory) beanFactory).getBeansOfType(RestInvocationHandler.class).values();
+		beanProxyCreator = new BeanProxyCreator(restTemplate, handlers);
 	}
 
 	private RestTemplate provideRestTemplate(ConfigurableListableBeanFactory configurableListableBeanFactory) {
