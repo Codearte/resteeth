@@ -24,6 +24,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.annotation.Annotation;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -53,12 +55,16 @@ class ResteethAutowireCandidateResolverDelegate implements AutowireCandidateReso
 
 	@Override
 	public Object getLazyResolutionProxyIfNecessary(DependencyDescriptor descriptor, String beanName) {
-		RestClient restClientAnnotation = getRestClientAnnotation(descriptor.getAnnotations());
-		if (restClientAnnotation != null) {
-			EndpointProvider endpointProvider = findEndpointProvider(descriptor.getDependencyType(), beanFactory, restClientAnnotation);
-			return beanProxyCreator.createProxyBean(descriptor.getDependencyType(), endpointProvider);
+		try {
+			RestClient restClientAnnotation = getRestClientAnnotation(descriptor.getAnnotations());
+			if (restClientAnnotation != null) {
+				EndpointProvider endpointProvider = findEndpointProvider(descriptor.getDependencyType(), beanFactory, restClientAnnotation);
+				return beanProxyCreator.createProxyBean(descriptor.getDependencyType(), endpointProvider);
+			}
+			return autowireCandidateResolver.getLazyResolutionProxyIfNecessary(descriptor, beanName);
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException(e);
 		}
-		return autowireCandidateResolver.getLazyResolutionProxyIfNecessary(descriptor, beanName);
 	}
 
 	private RestClient getRestClientAnnotation(Annotation[] annotations) {
@@ -76,11 +82,11 @@ class ResteethAutowireCandidateResolverDelegate implements AutowireCandidateReso
 	}
 
 	private EndpointProvider findEndpointProvider(Class<?> beanClass, ConfigurableListableBeanFactory beanFactory,
-																								RestClient restClient) {
+																								RestClient restClient) throws MalformedURLException {
 		if (restClient.endpoints().length == 1) {
-			return Endpoints.fixedEndpoint(restClient.endpoints()[0]);
+			return Endpoints.fixedEndpoint(new URL(restClient.endpoints()[0]));
 		} else if (restClient.endpoints().length > 1) {
-			return Endpoints.roundRobinEndpoint(restClient.endpoints());
+			return Endpoints.roundRobinEndpoint(toUrls(restClient));
 		}
 
 		Qualifier qualifier = AnnotationUtils.findAnnotation(beanClass, Qualifier.class);
@@ -108,6 +114,14 @@ class ResteethAutowireCandidateResolverDelegate implements AutowireCandidateReso
 		}
 
 		throw new NoSuchBeanDefinitionException(EndpointProvider.class, "Cannot find proper for " + beanClass.getCanonicalName());
+	}
+
+	private URL[] toUrls(RestClient restClient) throws MalformedURLException {
+		URL[] urls = new URL[restClient.endpoints().length];
+		for (int i = 0; i < restClient.endpoints().length; i++) {
+			urls[i] = new URL(restClient.endpoints()[i]);
+		}
+		return urls;
 	}
 
 	private boolean checkQualifier(BeanDefinition endpointBeanDefinition, Annotation qualifierAnnotation) {

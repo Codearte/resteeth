@@ -38,7 +38,7 @@ class RestClientMethodInterceptorTest extends Specification {
 
 	def "should invoke get method"() {
 		given:
-			mockServer.expect(requestTo("/users/42")).andExpect(method(HttpMethod.GET))
+			mockServer.expect(requestTo("http://localhost/users/42")).andExpect(method(HttpMethod.GET))
 					.andRespond(withSuccess("{ \"id\" : \"42\", \"name\" : \"John\"}", MediaType.APPLICATION_JSON))
 
 		when:
@@ -52,7 +52,7 @@ class RestClientMethodInterceptorTest extends Specification {
 
 	def "should invoke get method with two parameters"() {
 		given:
-			mockServer.expect(requestTo("/users/42/staff/123")).andExpect(method(HttpMethod.GET))
+			mockServer.expect(requestTo("http://localhost/users/42/staff/123")).andExpect(method(HttpMethod.GET))
 					.andRespond(withSuccess("{ \"id\" : \"42\", \"name\" : \"John\"}", MediaType.APPLICATION_JSON))
 
 		when:
@@ -66,7 +66,7 @@ class RestClientMethodInterceptorTest extends Specification {
 
 	def "should invoke post method"() {
 		given:
-			mockServer.expect(requestTo("/users")).andExpect(method(HttpMethod.POST))
+			mockServer.expect(requestTo("http://localhost/users")).andExpect(method(HttpMethod.POST))
 					.andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 					.andRespond(withSuccess())
 
@@ -79,7 +79,7 @@ class RestClientMethodInterceptorTest extends Specification {
 
 	def "should invoke post method with path parameter"() {
 		given:
-			mockServer.expect(requestTo("/users/135/staff")).andExpect(method(HttpMethod.POST))
+			mockServer.expect(requestTo("http://localhost/users/135/staff")).andExpect(method(HttpMethod.POST))
 					.andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 					.andRespond(withCreatedEntity(new URI("http://localhost/users/42")))
 
@@ -92,7 +92,7 @@ class RestClientMethodInterceptorTest extends Specification {
 
 	def "should invoke put method"() {
 		given:
-			mockServer.expect(requestTo("/users/44")).andExpect(method(HttpMethod.PUT))
+			mockServer.expect(requestTo("http://localhost/users/44")).andExpect(method(HttpMethod.PUT))
 					.andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 					.andRespond(withSuccess())
 
@@ -105,7 +105,7 @@ class RestClientMethodInterceptorTest extends Specification {
 
 	def "should invoke delete method"() {
 		given:
-			mockServer.expect(requestTo("/users/42")).andExpect(method(HttpMethod.DELETE))
+			mockServer.expect(requestTo("http://localhost/users/42")).andExpect(method(HttpMethod.DELETE))
 					.andRespond(withSuccess())
 
 		when:

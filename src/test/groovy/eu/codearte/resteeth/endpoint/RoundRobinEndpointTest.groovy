@@ -7,8 +7,8 @@ import spock.lang.Specification
  */
 class RoundRobinEndpointTest extends Specification {
 
-	private static final String ENDPOINT_1_URL = "http://localhost1"
-	private static final String ENDPOINT_2_URL = "http://localhost2"
+	private static final URL ENDPOINT_1_URL = "http://localhost1".toURL()
+	private static final URL ENDPOINT_2_URL = "http://localhost2".toURL()
 
 	def "should return fixed url"() {
 		given:

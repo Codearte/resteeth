@@ -1,6 +1,7 @@
 package eu.codearte.resteeth.endpoint;
 
 import java.util.Arrays;
+import java.net.URL;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -8,15 +9,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 class RoundRobinEndpoint implements EndpointProvider {
 
-	private final String[] endpointUrls;
+	private final URL[] endpointUrls;
 	private final AtomicInteger counter = new AtomicInteger();
 
-	RoundRobinEndpoint(String[] endpointUrls) {
+	RoundRobinEndpoint(URL[] endpointUrls) {
 		this.endpointUrls = endpointUrls;
 	}
 
 	@Override
-	public String getEndpoint() {
+	public URL getEndpoint() {
 		return endpointUrls[Math.abs(counter.getAndIncrement()) % endpointUrls.length];
 	}
 
