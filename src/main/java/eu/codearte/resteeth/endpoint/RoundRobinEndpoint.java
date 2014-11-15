@@ -1,5 +1,6 @@
 package eu.codearte.resteeth.endpoint;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -17,5 +18,10 @@ class RoundRobinEndpoint implements EndpointProvider {
 	@Override
 	public String getEndpoint() {
 		return endpointUrls[Math.abs(counter.getAndIncrement()) % endpointUrls.length];
+	}
+
+	@Override
+	public String toString() {
+		return Arrays.toString(endpointUrls);
 	}
 }

@@ -15,4 +15,9 @@ class FixedEndpoint implements EndpointProvider {
 	public String getEndpoint() {
 		return endpointUrl;
 	}
+
+	@Override
+	public String toString() {
+		return endpointUrl;
+	}
 }

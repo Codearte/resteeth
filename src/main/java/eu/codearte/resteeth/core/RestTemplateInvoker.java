@@ -57,4 +57,11 @@ class RestTemplateInvoker {
 
 		return stringHashMap;
 	}
+
+	@Override
+	public String toString() {
+		return "RestTemplateInvoker(" + "restTemplate=" + restTemplate +
+				", endpointProvider=" + endpointProvider +
+				", methodMetadataMap=" + methodMetadataMap + ')';
+	}
 }
