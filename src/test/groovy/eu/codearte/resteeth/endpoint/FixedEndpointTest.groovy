@@ -7,7 +7,7 @@ import spock.lang.Specification
  */
 class FixedEndpointTest extends Specification {
 
-	private static final String ENDPOINT_URL = "http://localhost"
+	private static final URL ENDPOINT_URL = "http://localhost".toURL()
 
 	def "should return fixed url"() {
 		given:
