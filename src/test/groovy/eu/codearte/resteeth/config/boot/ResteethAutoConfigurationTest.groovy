@@ -20,7 +20,7 @@ import spock.lang.Specification
 @ContextConfiguration(classes = Application.class, loader = SpringApplicationContextLoader.class)
 @WebAppConfiguration
 @IntegrationTest
-class ResteethBootConfigurationTest extends Specification {
+class ResteethAutoConfigurationTest extends Specification {
 
 	@Configuration
 	@EnableAutoConfiguration

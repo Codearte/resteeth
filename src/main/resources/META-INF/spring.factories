@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-eu.codearte.resteeth.config.boot.ResteethBootConfiguration
+eu.codearte.resteeth.autoconfigure.ResteethAutoConfiguration
