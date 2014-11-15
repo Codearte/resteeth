@@ -1,7 +1,4 @@
-package eu.codearte.resteeth.sample;
-
-import eu.codearte.resteeth.annotation.RestClient;
-
+package eu.codearte.resteeth.sample
 /**
  * @author Jakub Kubrynski
  */

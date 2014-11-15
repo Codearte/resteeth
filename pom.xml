@@ -86,6 +86,7 @@
 			<version>${spock.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- required for mocking -->
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>

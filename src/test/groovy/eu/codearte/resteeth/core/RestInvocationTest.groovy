@@ -8,7 +8,7 @@ import spock.lang.Specification
  */
 class RestInvocationTest extends Specification {
 
-	public static final int SOME_RESULT = 17
+	static final int SOME_RESULT = 17
 
 	def 'should call first and only handler in stack'() {
 		given:

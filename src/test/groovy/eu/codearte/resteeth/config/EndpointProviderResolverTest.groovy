@@ -1,7 +1,6 @@
 package eu.codearte.resteeth.config
 
 import eu.codearte.resteeth.annotation.RestClient
-import eu.codearte.resteeth.config.attributes.RestClientWithEndpoint
 import eu.codearte.resteeth.config.attributes.RestClientWithEndpoints
 import eu.codearte.resteeth.config.qualifier.RestInterfaceWithQualifier
 import eu.codearte.resteeth.config.sample.RestInterfaceWithCustomQualifier

@@ -1,7 +1,7 @@
 package eu.codearte.resteeth.endpoint;
 
-import java.util.Arrays;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
