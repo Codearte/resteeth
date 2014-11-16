@@ -39,7 +39,7 @@ class ResteethAutowireCandidateResolverDelegate implements AutowireCandidateReso
 	private boolean initialized = false;
 
 	public ResteethAutowireCandidateResolverDelegate(AutowireCandidateResolver autowireCandidateResolver,
-																									 AnnotationAttributes enableResteethAttributes) {
+													 AnnotationAttributes enableResteethAttributes) {
 		this.autowireCandidateResolver = autowireCandidateResolver;
 		this.enableResteethAttributes = enableResteethAttributes;
 	}

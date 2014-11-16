@@ -16,7 +16,7 @@ public final class SpringUtils {
 	}
 
 	public static Collection<RestInvocationHandler> getBeansOfType(Class<RestInvocationHandler> restInvocationHandlerClass,
-																																 ConfigurableListableBeanFactory beanFactory) {
+																   ConfigurableListableBeanFactory beanFactory) {
 		LinkedList<RestInvocationHandler> restInvocationHandlers = new LinkedList<>();
 		for (String beanName : beanFactory.getBeanDefinitionNames()) {
 			RootBeanDefinition beanDefinition = (RootBeanDefinition) beanFactory.getMergedBeanDefinition(beanName);

@@ -43,14 +43,14 @@ public class BeanProxyCreator {
 	}
 
 	public Object createProxyBean(Class<?> beanClass, EndpointProvider endpointProvider,
-																AnnotationAttributes enableResteethAttributes, List<Annotation> restClientAnnotations) {
+								  AnnotationAttributes enableResteethAttributes, List<Annotation> restClientAnnotations) {
 		LOG.info("Creating Resteeth bean for interface {}", beanClass.getCanonicalName());
 		final RestInvocationInterceptor interceptor = buildInvocationHandler(beanClass, endpointProvider, enableResteethAttributes, restClientAnnotations);
 		return buildProxy(beanClass, interceptor);
 	}
 
 	private RestInvocationInterceptor buildInvocationHandler(Class<?> beanClass, EndpointProvider endpointProvider,
-																													 AnnotationAttributes enableResteethAttributes, List<Annotation> restClientAnnotations) {
+															 AnnotationAttributes enableResteethAttributes, List<Annotation> restClientAnnotations) {
 		final Map<Method, MethodMetadata> methodMetadataMap = extractInterfaceInformation(beanClass, enableResteethAttributes, restClientAnnotations);
 		final List<RestInvocationHandler> handlersList = prepareHandlersList(endpointProvider);
 		return new RestInvocationInterceptor(methodMetadataMap, handlersList);
@@ -70,7 +70,7 @@ public class BeanProxyCreator {
 	}
 
 	private Map<Method, MethodMetadata> extractInterfaceInformation(Class<?> beanClass,
-																																	AnnotationAttributes enableResteethAttributes, List<Annotation> restClientAnnotations) {
+																	AnnotationAttributes enableResteethAttributes, List<Annotation> restClientAnnotations) {
 		Map<Method, MethodMetadata> methodMetadataMap = new HashMap<>();
 		RequestMapping controllerRequestMapping = beanClass.getAnnotation(RequestMapping.class);
 		ResteethAnnotationMetadata annotationMetadata = mergeAnnotations(enableResteethAttributes, restClientAnnotations, Arrays.asList(beanClass.getAnnotations()));
@@ -81,8 +81,8 @@ public class BeanProxyCreator {
 	}
 
 	private ResteethAnnotationMetadata mergeAnnotations(AnnotationAttributes enableResteethAttributes,
-																								 List<Annotation> restClientAnnotations,
-																								 List<Annotation> interfaceAnnotations) {
+														List<Annotation> restClientAnnotations,
+														List<Annotation> interfaceAnnotations) {
 		RestClient restClientAnnotation = null;
 		for (Annotation annotation : restClientAnnotations) {
 			if (annotation.annotationType() == RestClient.class) {
