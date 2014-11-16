@@ -10,7 +10,10 @@ import java.util.LinkedList;
 /**
  * @author Jakub Kubrynski
  */
-public class SpringUtils {
+public final class SpringUtils {
+
+	private SpringUtils() {
+	}
 
 	public static Collection<RestInvocationHandler> getBeansOfType(Class<RestInvocationHandler> restInvocationHandlerClass,
 																																 ConfigurableListableBeanFactory beanFactory) {

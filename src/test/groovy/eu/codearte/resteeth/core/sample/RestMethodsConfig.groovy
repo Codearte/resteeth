@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration
 /**
  * @author Jakub Kubrynski
  */
-@EnableResteeth(basePackages = "eu.codearte.resteeth.core.sample")
+@EnableResteeth
 @Configuration
 class RestMethodsConfig {
 

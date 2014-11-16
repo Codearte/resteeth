@@ -3,7 +3,7 @@ package eu.codearte.resteeth.core;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Jakub Kubrynski
@@ -14,11 +14,11 @@ public class MethodMetadata {
 	private final HttpMethod requestMethod;
 	private final Class<?> returnType;
 	private final Integer requestBody;
-	private final HashMap<Integer, String> urlVariables;
+	private final Map<Integer, String> urlVariables;
 	private final HttpHeaders httpHeaders;
 
 	public MethodMetadata(String methodUrl, HttpMethod requestMethod, Class<?> returnType, Integer requestBody,
-								 HashMap<Integer, String> urlVariables, HttpHeaders httpHeaders) {
+												Map<Integer, String> urlVariables, HttpHeaders httpHeaders) {
 		this.methodUrl = methodUrl;
 		this.requestMethod = requestMethod;
 		this.returnType = returnType;
@@ -43,7 +43,7 @@ public class MethodMetadata {
 		return requestBody;
 	}
 
-	public HashMap<Integer, String> getUrlVariables() {
+	public Map<Integer, String> getUrlVariables() {
 		return urlVariables;
 	}
 

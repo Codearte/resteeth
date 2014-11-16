@@ -19,5 +19,4 @@ public @interface RestClient {
 
 	String[] endpoints() default {};
 
-	String endpointProviderBeanName() default "";
 }

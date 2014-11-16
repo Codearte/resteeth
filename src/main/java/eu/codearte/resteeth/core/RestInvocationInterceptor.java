@@ -26,8 +26,8 @@ class RestInvocationInterceptor implements MethodInterceptor {
 		if (AopUtils.isToStringMethod(invocation.getMethod())) {
 			return "Proxy to " + handlers;
 		}
-		final MethodMetadata metadata = methodMetadataMap.get(invocation.getMethod());
-		final RestInvocation restInvocation = new RestInvocation(invocation.getMethod(), invocation.getArguments(), metadata, handlers);
+		final RestInvocation restInvocation = new RestInvocation(
+				invocation.getMethod(), invocation.getArguments(), methodMetadataMap.get(invocation.getMethod()), handlers);
 		return restInvocation.proceed();
 	}
 }

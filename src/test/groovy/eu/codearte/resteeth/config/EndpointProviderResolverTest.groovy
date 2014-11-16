@@ -42,7 +42,7 @@ class EndpointProviderResolverTest extends Specification {
 	}
 
 	@Configuration
-	@EnableResteeth(basePackages = "eu.codearte.resteeth.config.sample")
+	@EnableResteeth
 	static class SampleCustomQualifierConfiguration {
 
 		@RestClient
@@ -70,7 +70,7 @@ class EndpointProviderResolverTest extends Specification {
 	}
 
 	@Configuration
-	@EnableResteeth(basePackages = "eu.codearte.resteeth.config.qualifier")
+	@EnableResteeth
 	static class SampleQualifierConfiguration {
 
 		@RestClient
@@ -98,7 +98,7 @@ class EndpointProviderResolverTest extends Specification {
 	}
 
 	@Configuration
-	@EnableResteeth(basePackages = "eu.codearte.resteeth.config.attributes")
+	@EnableResteeth
 	static class SampleEndpointsAttributeConfiguration {
 
 		@RestClient(endpoints = ["http://test"])

@@ -47,7 +47,7 @@ class RestTemplateInvoker implements RestInvocationHandler {
 		return null;
 	}
 
-	private Map<String, ?> buildArgumentsMap(HashMap<Integer, String> urlVariables, Object[] arguments) {
+	private Map<String, ?> buildArgumentsMap(Map<Integer, String> urlVariables, Object[] arguments) {
 		Map<String, Object> stringHashMap = new HashMap<>();
 
 		for (int i = 0; i < arguments.length; i++) {

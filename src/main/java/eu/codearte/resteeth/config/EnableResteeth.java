@@ -18,6 +18,4 @@ import java.lang.annotation.Target;
 @Import(ResteethDefinitionRegistrar.class)
 public @interface EnableResteeth {
 
-	String[] basePackages() default {};
-
 }
