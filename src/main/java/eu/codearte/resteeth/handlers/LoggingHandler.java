@@ -1,5 +1,6 @@
 package eu.codearte.resteeth.handlers;
 
+import eu.codearte.resteeth.annotation.LogScope;
 import eu.codearte.resteeth.core.RestInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,13 +14,18 @@ public class LoggingHandler implements RestInvocationHandler {
 
 	@Override
 	public Object proceed(RestInvocation invocation) {
-		log.debug("Invoked {}, calling {} {}, variables: {}",
-				invocation.getMethod(),
-				invocation.getMetadata().getRequestMethod(),
-				invocation.getMetadata().getMethodUrl(),
-				invocation.getMetadata().getUrlVariables());
+		LogScope loggingScope = invocation.getMetadata().getMethodAnnotationMetadata().getResteethAnnotationMetadata().getLoggingScope();
+		if (loggingScope.ordinal() >= LogScope.INVOCATION_ONLY.ordinal()) {
+			log.debug("Invoked {}, calling {} {}, variables: {}",
+					invocation.getMethod(),
+					invocation.getMetadata().getRequestMethod(),
+					invocation.getMetadata().getMethodUrl(),
+					invocation.getMetadata().getUrlVariables());
+		}
 		final Object result = invocation.proceed();
-		log.trace("Response: {}", result);
+		if (loggingScope == LogScope.FULL) {
+			log.trace("Response: {}", result);
+		}
 		return result;
 	}
 

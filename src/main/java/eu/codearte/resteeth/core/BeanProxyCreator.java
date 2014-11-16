@@ -1,17 +1,22 @@
 package eu.codearte.resteeth.core;
 
+import eu.codearte.resteeth.annotation.LogScope;
+import eu.codearte.resteeth.annotation.RestClient;
 import eu.codearte.resteeth.endpoint.EndpointProvider;
 import eu.codearte.resteeth.handlers.RestInvocationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.core.OrderComparator;
+import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -37,14 +42,16 @@ public class BeanProxyCreator {
 		LOG.debug("Custom handlers: {}", this.handlers);
 	}
 
-	public Object createProxyBean(Class<?> beanClass, EndpointProvider endpointProvider) {
+	public Object createProxyBean(Class<?> beanClass, EndpointProvider endpointProvider,
+																AnnotationAttributes enableResteethAttributes, List<Annotation> restClientAnnotations) {
 		LOG.info("Creating Resteeth bean for interface {}", beanClass.getCanonicalName());
-		final RestInvocationInterceptor interceptor = buildInvocationHandler(beanClass, endpointProvider);
+		final RestInvocationInterceptor interceptor = buildInvocationHandler(beanClass, endpointProvider, enableResteethAttributes, restClientAnnotations);
 		return buildProxy(beanClass, interceptor);
 	}
 
-	private RestInvocationInterceptor buildInvocationHandler(Class<?> beanClass, EndpointProvider endpointProvider) {
-		final Map<Method, MethodMetadata> methodMetadataMap = extractInterfaceInformation(beanClass);
+	private RestInvocationInterceptor buildInvocationHandler(Class<?> beanClass, EndpointProvider endpointProvider,
+																													 AnnotationAttributes enableResteethAttributes, List<Annotation> restClientAnnotations) {
+		final Map<Method, MethodMetadata> methodMetadataMap = extractInterfaceInformation(beanClass, enableResteethAttributes, restClientAnnotations);
 		final List<RestInvocationHandler> handlersList = prepareHandlersList(endpointProvider);
 		return new RestInvocationInterceptor(methodMetadataMap, handlersList);
 	}
@@ -62,13 +69,36 @@ public class BeanProxyCreator {
 		return proxyFactory.getProxy();
 	}
 
-	private Map<Method, MethodMetadata> extractInterfaceInformation(Class<?> beanClass) {
+	private Map<Method, MethodMetadata> extractInterfaceInformation(Class<?> beanClass,
+																																	AnnotationAttributes enableResteethAttributes, List<Annotation> restClientAnnotations) {
 		Map<Method, MethodMetadata> methodMetadataMap = new HashMap<>();
 		RequestMapping controllerRequestMapping = beanClass.getAnnotation(RequestMapping.class);
+		ResteethAnnotationMetadata annotationMetadata = mergeAnnotations(enableResteethAttributes, restClientAnnotations, Arrays.asList(beanClass.getAnnotations()));
 		for (Method method : beanClass.getMethods()) {
-			methodMetadataMap.put(method, metadataExtractor.extractMethodMetadata(method, controllerRequestMapping));
+			methodMetadataMap.put(method, metadataExtractor.extractMethodMetadata(method, controllerRequestMapping, annotationMetadata));
 		}
 		return methodMetadataMap;
+	}
+
+	private ResteethAnnotationMetadata mergeAnnotations(AnnotationAttributes enableResteethAttributes,
+																								 List<Annotation> restClientAnnotations,
+																								 List<Annotation> interfaceAnnotations) {
+		RestClient restClientAnnotation = null;
+		for (Annotation annotation : restClientAnnotations) {
+			if (annotation.annotationType() == RestClient.class) {
+				restClientAnnotation = (RestClient) annotation;
+				break;
+			}
+		}
+
+		LogScope loggingScope = enableResteethAttributes.getEnum("loggingScope");
+
+		LogScope restClientLogScope = restClientAnnotation.loggingScope();
+		if (restClientLogScope != LogScope.DEFAULT) {
+			loggingScope = restClientLogScope;
+		}
+
+		return new ResteethAnnotationMetadata(loggingScope);
 	}
 
 }

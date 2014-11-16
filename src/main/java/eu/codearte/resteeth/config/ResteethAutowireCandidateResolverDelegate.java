@@ -11,13 +11,16 @@ import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.beans.factory.support.AutowireCandidateResolver;
+import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import javax.swing.*;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -31,10 +34,14 @@ class ResteethAutowireCandidateResolverDelegate implements AutowireCandidateReso
 	private BeanProxyCreator beanProxyCreator;
 
 	private final AutowireCandidateResolver autowireCandidateResolver;
+	private final AnnotationAttributes enableResteethAttributes;
+
 	private boolean initialized = false;
 
-	public ResteethAutowireCandidateResolverDelegate(AutowireCandidateResolver autowireCandidateResolver) {
+	public ResteethAutowireCandidateResolverDelegate(AutowireCandidateResolver autowireCandidateResolver,
+																									 AnnotationAttributes enableResteethAttributes) {
 		this.autowireCandidateResolver = autowireCandidateResolver;
+		this.enableResteethAttributes = enableResteethAttributes;
 	}
 
 	@Override
@@ -53,7 +60,8 @@ class ResteethAutowireCandidateResolverDelegate implements AutowireCandidateReso
 		if (restClientAnnotation != null) {
 			ensueBeanProxyCreatorInitialized();
 			return beanProxyCreator.createProxyBean(descriptor.getDependencyType(),
-					beanResolver.findEndpointProvider(descriptor.getDependencyType(), beanFactory, restClientAnnotation));
+					beanResolver.findEndpointProvider(descriptor.getDependencyType(), beanFactory, restClientAnnotation),
+					enableResteethAttributes, Arrays.asList(descriptor.getAnnotations()));
 		}
 		return autowireCandidateResolver.getLazyResolutionProxyIfNecessary(descriptor, beanName);
 	}

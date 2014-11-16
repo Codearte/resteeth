@@ -2,6 +2,7 @@ package eu.codearte.resteeth.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -15,6 +16,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Jakub Kubrynski
@@ -23,7 +25,8 @@ class MetadataExtractor {
 
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	MethodMetadata extractMethodMetadata(Method method, RequestMapping controllerRequestMapping) {
+	MethodMetadata extractMethodMetadata(Method method, RequestMapping controllerRequestMapping,
+																			 ResteethAnnotationMetadata resteethAnnotationMetadata) {
 		RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
 
 		String methodUrl = extractUrl(requestMapping, controllerRequestMapping);
@@ -49,7 +52,8 @@ class MetadataExtractor {
 				extractReturnType(method),
 				requestBody,
 				urlVariables,
-				extractHeaders(requestMapping, controllerRequestMapping));
+				extractHeaders(requestMapping, controllerRequestMapping),
+				new MethodAnnotationMetadata(resteethAnnotationMetadata));
 	}
 
 	private Class<?> extractReturnType(Method method) {

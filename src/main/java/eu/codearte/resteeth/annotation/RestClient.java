@@ -19,4 +19,5 @@ public @interface RestClient {
 
 	String[] endpoints() default {};
 
+	LogScope loggingScope() default LogScope.DEFAULT;
 }

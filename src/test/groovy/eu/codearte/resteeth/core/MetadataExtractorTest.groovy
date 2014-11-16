@@ -52,7 +52,7 @@ class MetadataExtractorTest extends Specification {
 		given:
 			def method = SampleRestClient.class.getDeclaredMethod("withAllData")
 		when:
-			def metadata = extractor.extractMethodMetadata(method, null)
+			def metadata = extractor.extractMethodMetadata(method, null, null)
 		then:
 			metadata.methodUrl == "/somethings"
 			metadata.requestMethod == HttpMethod.GET
@@ -64,7 +64,7 @@ class MetadataExtractorTest extends Specification {
 		given:
 			def method = SampleRestClient.class.getDeclaredMethod("withoutRequestMethod", Long.class)
 		when:
-			extractor.extractMethodMetadata(method, null)
+			extractor.extractMethodMetadata(method, null, null)
 		then:
 			def e = thrown(IncorrectRequestMapping.class)
 			e.message.contains("No requestMethods specified")
@@ -75,7 +75,7 @@ class MetadataExtractorTest extends Specification {
 			def method = SampleRestClientWithMapping.class.getDeclaredMethod("withoutRequestMethod", Long.class)
 			def controllerRequestMapping = SampleRestClientWithMapping.getAnnotation(RequestMapping)
 		when:
-			def metadata = extractor.extractMethodMetadata(method, controllerRequestMapping)
+			def metadata = extractor.extractMethodMetadata(method, controllerRequestMapping, null)
 		then:
 			metadata.requestMethod == HttpMethod.GET
 	}
@@ -84,7 +84,7 @@ class MetadataExtractorTest extends Specification {
 		given:
 			def method = SampleRestClient.class.getDeclaredMethod("withoutRequestUrl")
 		when:
-			extractor.extractMethodMetadata(method, null)
+			extractor.extractMethodMetadata(method, null, null)
 		then:
 			def e = thrown(IncorrectRequestMapping.class)
 			e.message.contains("No request url found")
@@ -95,7 +95,7 @@ class MetadataExtractorTest extends Specification {
 			def method = SampleRestClientWithMapping.class.getDeclaredMethod("withoutRequestUrl")
 			def controllerRequestMapping = SampleRestClientWithMapping.getAnnotation(RequestMapping)
 		when:
-			def metadata = extractor.extractMethodMetadata(method, controllerRequestMapping)
+			def metadata = extractor.extractMethodMetadata(method, controllerRequestMapping, null)
 		then:
 			metadata.methodUrl == "/somethings"
 	}
@@ -105,7 +105,7 @@ class MetadataExtractorTest extends Specification {
 			def method = SampleRestClientWithMapping.class.getDeclaredMethod("withoutRequestMethod", Long.class)
 			def controllerRequestMapping = SampleRestClientWithMapping.getAnnotation(RequestMapping)
 		when:
-			def metadata = extractor.extractMethodMetadata(method, controllerRequestMapping)
+			def metadata = extractor.extractMethodMetadata(method, controllerRequestMapping, null)
 		then:
 			metadata.methodUrl == "/somethings/{id}"
 	}
@@ -114,7 +114,7 @@ class MetadataExtractorTest extends Specification {
 		given:
 			def method = SampleRestClient.class.getDeclaredMethod("withoutContentTypes")
 		when:
-			def metadata = extractor.extractMethodMetadata(method, null)
+			def metadata = extractor.extractMethodMetadata(method, null, null)
 		then:
 			!metadata.httpHeaders.containsKey("ContentType")
 			!metadata.httpHeaders.containsKey("Accept")
@@ -125,7 +125,7 @@ class MetadataExtractorTest extends Specification {
 			def method = SampleRestClientWithMapping.class.getDeclaredMethod("withoutContentTypes")
 			def controllerRequestMapping = SampleRestClientWithMapping.getAnnotation(RequestMapping)
 		when:
-			def metadata = extractor.extractMethodMetadata(method, controllerRequestMapping)
+			def metadata = extractor.extractMethodMetadata(method, controllerRequestMapping, null)
 		then:
 			metadata.httpHeaders.getContentType() == MediaType.APPLICATION_JSON
 			metadata.httpHeaders.getAccept() == [MediaType.APPLICATION_XML]

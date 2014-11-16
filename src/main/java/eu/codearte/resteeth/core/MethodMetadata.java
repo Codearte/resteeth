@@ -16,15 +16,18 @@ public class MethodMetadata {
 	private final Integer requestBody;
 	private final Map<Integer, String> urlVariables;
 	private final HttpHeaders httpHeaders;
+	private final MethodAnnotationMetadata methodAnnotationMetadata;
 
 	public MethodMetadata(String methodUrl, HttpMethod requestMethod, Class<?> returnType, Integer requestBody,
-												Map<Integer, String> urlVariables, HttpHeaders httpHeaders) {
+												Map<Integer, String> urlVariables, HttpHeaders httpHeaders,
+												MethodAnnotationMetadata methodAnnotationMetadata) {
 		this.methodUrl = methodUrl;
 		this.requestMethod = requestMethod;
 		this.returnType = returnType;
 		this.requestBody = requestBody;
 		this.urlVariables = urlVariables;
 		this.httpHeaders = httpHeaders;
+		this.methodAnnotationMetadata = methodAnnotationMetadata;
 	}
 
 	public String getMethodUrl() {
@@ -49,5 +52,9 @@ public class MethodMetadata {
 
 	public HttpHeaders getHttpHeaders() {
 		return httpHeaders;
+	}
+
+	public MethodAnnotationMetadata getMethodAnnotationMetadata() {
+		return methodAnnotationMetadata;
 	}
 }
