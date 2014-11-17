@@ -26,7 +26,7 @@ class MetadataExtractor {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	MethodMetadata extractMethodMetadata(Method method, RequestMapping controllerRequestMapping,
-																			 ResteethAnnotationMetadata resteethAnnotationMetadata) {
+										 ResteethAnnotationMetadata resteethAnnotationMetadata) {
 		RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
 
 		String methodUrl = extractUrl(requestMapping, controllerRequestMapping);

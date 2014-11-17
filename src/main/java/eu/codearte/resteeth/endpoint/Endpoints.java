@@ -14,6 +14,7 @@ public class Endpoints {
 	public static EndpointProvider fixedEndpoint(URL endpointUrl) {
 		return new FixedEndpoint(endpointUrl);
 	}
+
 	public static EndpointProvider fixedEndpoint(String endpointUrl) {
 		return new FixedEndpoint(toUrl(endpointUrl));
 	}

@@ -14,8 +14,9 @@ public interface RestInvocationHandler extends Ordered {
 	 * Higher priority (smaller value) will cause this handler to be executed earlier in the chain.
 	 * Low priority (bigger value) will push handler to the end.
 	 * Handler with lowest priority must handle request.
-	 * @see {@link Ordered}
+	 *
 	 * @return Value controlling at what stage this handler will be called.
+	 * @see {@link Ordered}
 	 */
 	@Override
 	int getOrder();

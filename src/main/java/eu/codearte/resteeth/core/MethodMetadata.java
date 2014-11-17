@@ -19,8 +19,8 @@ public class MethodMetadata {
 	private final MethodAnnotationMetadata methodAnnotationMetadata;
 
 	public MethodMetadata(String methodUrl, HttpMethod requestMethod, Class<?> returnType, Integer requestBody,
-												Map<Integer, String> urlVariables, HttpHeaders httpHeaders,
-												MethodAnnotationMetadata methodAnnotationMetadata) {
+						  Map<Integer, String> urlVariables, HttpHeaders httpHeaders,
+						  MethodAnnotationMetadata methodAnnotationMetadata) {
 		this.methodUrl = methodUrl;
 		this.requestMethod = requestMethod;
 		this.returnType = returnType;
