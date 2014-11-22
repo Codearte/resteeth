@@ -5,8 +5,12 @@ import eu.codearte.resteeth.core.sample.RestClientWithMethods
 import eu.codearte.resteeth.core.sample.RestMethodsConfig
 import eu.codearte.resteeth.core.sample.User
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.RequestEntity
+import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers
@@ -123,4 +127,19 @@ class RestClientMethodInterceptorTest extends Specification {
 			str.startsWith("Proxy to ")
 	}
 
+	def "should get ResponseEntity"() {
+		given:
+			mockServer.expect(requestTo("http://localhost/users/42")).andExpect(method(HttpMethod.GET))
+					.andRespond(withSuccess("{ \"id\" : \"42\", \"name\" : \"John\"}", MediaType.APPLICATION_JSON))
+
+		when:
+			def entity = restClient.getResponseEntity(42)
+
+		then:
+			mockServer.verify()
+			entity.statusCode == HttpStatus.OK
+			def user = entity.getBody()
+			user.id == 42
+			user.name == "John"
+	}
 }

@@ -2,6 +2,7 @@ package eu.codearte.resteeth.core;
 
 import eu.codearte.resteeth.endpoint.EndpointProvider;
 import eu.codearte.resteeth.handlers.RestInvocationHandler;
+import eu.codearte.resteeth.util.SpringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -34,10 +35,19 @@ class RestTemplateInvoker implements RestInvocationHandler {
 		HttpEntity entity = new HttpEntity(
 				extractRequestBody(methodMetadata.getRequestBody(), invocation.getArguments()), methodMetadata.getHttpHeaders());
 
-		ResponseEntity<?> exchange = restTemplate.exchange(requestUrl, methodMetadata.getRequestMethod(), entity,
-				methodMetadata.getReturnType(), urlVariablesValues);
+		Class responseType;
+		boolean returnsResponseEntity = ResponseEntity.class.isAssignableFrom(methodMetadata.getReturnType());
+		if (returnsResponseEntity) {
+			responseType = SpringUtils.getGenericType(invocation.getMethod().getGenericReturnType());
+		} else {
+			responseType = methodMetadata.getReturnType();
+		}
 
-		return exchange.getBody();
+		@SuppressWarnings("unchecked")
+		ResponseEntity<?> exchange = restTemplate.exchange(requestUrl, methodMetadata.getRequestMethod(), entity,
+				responseType, urlVariablesValues);
+
+		return returnsResponseEntity ? exchange : exchange.getBody();
 	}
 
 	private Object extractRequestBody(Integer requestBody, Object[] arguments) {
