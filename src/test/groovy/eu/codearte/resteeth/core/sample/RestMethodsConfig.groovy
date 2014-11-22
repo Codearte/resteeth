@@ -15,7 +15,7 @@ class RestMethodsConfig {
 
 	@Bean
 	public EndpointProvider endpointProvider() {
-		return new StubEndpointProvider();
+		new StubEndpointProvider()
 	}
 
 }
