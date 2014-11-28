@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * {@link org.springframework.boot.autoconfigure.EnableAutoConfiguration Auto-configuration} for Resteeth support.
  * Equivalent to enabling {@link eu.codearte.resteeth.config.EnableResteeth} in your configuration.
- * <p>
+ * <p/>
  * The configuration will not be activated if {@literal resteeth.enabled=false}.
  *
  * @author Mariusz Smykula

@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class ResteethConfiguration {
+
 	@Bean
 	public HeadersHandler headersHandler() {
 		return new HeadersHandler();

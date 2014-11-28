@@ -17,7 +17,6 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import javax.swing.*;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +38,7 @@ class ResteethAutowireCandidateResolverDelegate implements AutowireCandidateReso
 	private boolean initialized = false;
 
 	public ResteethAutowireCandidateResolverDelegate(AutowireCandidateResolver autowireCandidateResolver,
-													 AnnotationAttributes enableResteethAttributes) {
+	                                                 AnnotationAttributes enableResteethAttributes) {
 		this.autowireCandidateResolver = autowireCandidateResolver;
 		this.enableResteethAttributes = enableResteethAttributes;
 	}

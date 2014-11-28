@@ -1,9 +1,6 @@
 package eu.codearte.resteeth.core;
 
 import eu.codearte.resteeth.annotation.LogScope;
-import org.springframework.core.annotation.AnnotationAttributes;
-
-import java.lang.annotation.Annotation;
 
 /**
  * @author Jakub Kubrynski

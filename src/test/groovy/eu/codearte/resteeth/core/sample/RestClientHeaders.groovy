@@ -20,8 +20,8 @@ interface RestClientHeaders {
 	User getUserStaticHeader(@PathVariable("id") Integer id);
 
 	@StaticHeaders([
-		@StaticHeader(name = "testHeaderName1", value = "testHeaderValue1"),
-		@StaticHeader(name = "testHeaderName2", value = "testHeaderValue2")
+			@StaticHeader(name = "testHeaderName1", value = "testHeaderValue1"),
+			@StaticHeader(name = "testHeaderName2", value = "testHeaderValue2")
 	])
 	@RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
 	User getUserStaticHeaders(@PathVariable("id") Integer id);

@@ -13,6 +13,7 @@ import java.util.Map;
  * @author Tomasz Nurkiewicz
  */
 class RestInvocationInterceptor implements MethodInterceptor {
+
 	private final Map<Method, MethodMetadata> methodMetadataMap;
 	private final List<RestInvocationHandler> handlers;
 

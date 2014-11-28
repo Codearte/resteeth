@@ -15,8 +15,8 @@ public interface RestInvocationHandler extends Ordered {
 	 * Low priority (bigger value) will push handler to the end.
 	 * Handler with lowest priority must handle request.
 	 *
-	 * @see org.springframework.core.Ordered
 	 * @return Value controlling at what stage this handler will be called.
+	 * @see org.springframework.core.Ordered
 	 */
 	@Override
 	int getOrder();
