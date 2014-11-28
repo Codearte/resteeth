@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-				 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>eu.codearte.resteeth</groupId>
 	<artifactId>resteeth</artifactId>
 	<name>ResTeeth</name>
-	<version>0.3.1-SNAPSHOT</version>
+	<version>0.3.1</version>
 
 	<description>ResTeeth - dynamic REST client for Spring</description>
 	<url>https://github.com/Codearte/resteeth/</url>
@@ -186,7 +185,7 @@
 		<connection>scm:git:https://github.com/Codearte/resteeth.git</connection>
 		<developerConnection>scm:git:git@github.com:Codearte/resteeth.git</developerConnection>
 		<url>https://github.com/Codearte/resteeth/</url>
-		<tag>HEAD</tag>
+		<tag>resteeth-0.3.1</tag>
 	</scm>
 
 	<licenses>
