@@ -139,4 +139,32 @@ class RestClientMethodInterceptorTest extends Specification {
 			user.id == 42
 			user.name == "John"
 	}
+
+	def "should invoke get method with request parameter"() {
+		given:
+			mockServer.expect(requestTo("http://localhost/users/queries?name=John")).andExpect(method(HttpMethod.GET))
+					.andRespond(withSuccess("{ \"id\" : \"42\", \"name\" : \"John\"}", MediaType.APPLICATION_JSON))
+
+		when:
+			User user = restClient.getWithRequestParameter("John")
+
+		then:
+			mockServer.verify()
+			user.id == 42
+			user.name == "John"
+	}
+
+	def "should invoke get method with request parameters pojo"() {
+		given:
+			mockServer.expect(requestTo("http://localhost/users/queriesPojo?name=John")).andExpect(method(HttpMethod.GET))
+					.andRespond(withSuccess("{ \"id\" : \"42\", \"name\" : \"John\"}", MediaType.APPLICATION_JSON))
+
+		when:
+			User user = restClient.getWithRequestParametersPojo(new User(name: "John"))
+
+		then:
+			mockServer.verify()
+			user.id == 42
+			user.name == "John"
+	}
 }

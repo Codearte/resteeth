@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandles;
@@ -29,18 +30,26 @@ class MetadataExtractor {
 
 		String methodUrl = extractUrl(requestMapping, controllerRequestMapping);
 
+		Class<?>[] parameterTypes = method.getParameterTypes();
 		Annotation[][] parameterAnnotations = method.getParameterAnnotations();
 		Integer requestBody = null;
+		Integer pojoQueryParameter = null;
 		HashMap<Integer, String> urlVariables = new HashMap<>();
-		if (parameterAnnotations != null && parameterAnnotations.length > 0) {
-			for (int i = 0; i < parameterAnnotations.length; i++) {
-				for (Annotation parameterAnnotation : parameterAnnotations[i]) {
-					if (PathVariable.class.isAssignableFrom(parameterAnnotation.getClass())) {
-						urlVariables.put(i, ((PathVariable) parameterAnnotation).value());
+		HashMap<Integer, String> queryParameters = new HashMap<>();
+		if (parameterTypes != null && parameterTypes.length > 0) {
+			for (int i = 0; i < parameterTypes.length; i++) {
+				if (parameterAnnotations[i].length > 0) {
+					for (Annotation parameterAnnotation : parameterAnnotations[i]) {
+						if (PathVariable.class.isAssignableFrom(parameterAnnotation.getClass())) {
+							urlVariables.put(i, ((PathVariable) parameterAnnotation).value());
+						} else if (RequestParam.class.isAssignableFrom(parameterAnnotation.getClass())) {
+							queryParameters.put(i, ((RequestParam) parameterAnnotation).value());
+						} else if (RequestBody.class.isAssignableFrom(parameterAnnotation.getClass())) {
+							requestBody = i;
+						}
 					}
-					if (RequestBody.class.isAssignableFrom(parameterAnnotation.getClass())) {
-						requestBody = i;
-					}
+				} else {
+					pojoQueryParameter = i;
 				}
 			}
 		}
@@ -50,6 +59,8 @@ class MetadataExtractor {
 				extractReturnType(method),
 				requestBody,
 				urlVariables,
+				queryParameters,
+				pojoQueryParameter,
 				extractHeaders(requestMapping, controllerRequestMapping),
 				new MethodAnnotationMetadata(resteethAnnotationMetadata));
 	}

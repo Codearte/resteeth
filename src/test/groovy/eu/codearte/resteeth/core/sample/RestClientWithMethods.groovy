@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
 
 /**
  * @author Jakub Kubrynski
@@ -32,4 +33,9 @@ interface RestClientWithMethods {
 	@RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
 	ResponseEntity<User> getResponseEntity(@PathVariable("id") Integer id);
 
+	@RequestMapping(value = "/users/queries", method = RequestMethod.GET)
+	User getWithRequestParameter(@RequestParam("name") String name);
+
+	@RequestMapping(value = "/users/queriesPojo", method = RequestMethod.GET)
+	User getWithRequestParametersPojo(User user);
 }
