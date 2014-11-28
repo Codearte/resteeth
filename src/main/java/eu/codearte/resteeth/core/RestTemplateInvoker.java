@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,16 +29,16 @@ class RestTemplateInvoker implements RestInvocationHandler {
 	@Override
 	public Object proceed(RestInvocation invocation) {
 		MethodMetadata methodMetadata = invocation.getMetadata();
-		Map<String, ?> urlVariablesValues = buildArgumentsMap(methodMetadata.getUrlVariables(), invocation.getArguments());
+		Map<String, ?> urlVariablesValues = buildArgumentsMap(methodMetadata.getParameterMetadata().getUrlVariables(), invocation.getArguments());
 
 		String requestUrl = endpointProvider.getEndpoint() + methodMetadata.getMethodUrl();
 
-		requestUrl = appendAnnotatedQueryParameters(requestUrl, methodMetadata.getQueryParameters(), invocation.getArguments());
-		requestUrl = appendPojoQueryParameters(requestUrl, methodMetadata.getPojoQueryParameter(), invocation.getArguments());
+		requestUrl = appendAnnotatedQueryParameters(requestUrl, methodMetadata.getParameterMetadata().getQueryParameters(), invocation.getArguments());
+		requestUrl = appendPojoQueryParameters(requestUrl, methodMetadata.getParameterMetadata().getPojoQueryIndex(), invocation.getArguments());
 
 		@SuppressWarnings("unchecked")
 		HttpEntity entity = new HttpEntity(
-				extractRequestBody(methodMetadata.getRequestBody(), invocation.getArguments()), methodMetadata.getHttpHeaders());
+				extractRequestBody(methodMetadata.getParameterMetadata().getRequestBodyIndex(), invocation.getArguments()), methodMetadata.getHttpHeaders());
 
 		Class responseType;
 		boolean returnsResponseEntity = ResponseEntity.class.isAssignableFrom(methodMetadata.getReturnType());
@@ -95,7 +94,7 @@ class RestTemplateInvoker implements RestInvocationHandler {
 		return appendQueryParameters(requestUrl, queryParamsMap);
 	}
 
-	private String appendAnnotatedQueryParameters(String requestUrl, HashMap<Integer, String> queryParameters, Object[] arguments) {
+	private String appendAnnotatedQueryParameters(String requestUrl, Map<Integer, String> queryParameters, Object[] arguments) {
 		return appendQueryParameters(requestUrl, buildArgumentsMap(queryParameters, arguments));
 	}
 

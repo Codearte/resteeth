@@ -83,22 +83,7 @@ public class BeanProxyCreator {
 	private ResteethAnnotationMetadata mergeAnnotations(AnnotationAttributes enableResteethAttributes,
 	                                                    List<Annotation> restClientAnnotations,
 	                                                    List<Annotation> interfaceAnnotations) {
-		RestClient restClientAnnotation = null;
-		for (Annotation annotation : restClientAnnotations) {
-			if (annotation.annotationType() == RestClient.class) {
-				restClientAnnotation = (RestClient) annotation;
-				break;
-			}
-		}
-
-		LogScope loggingScope = enableResteethAttributes.getEnum("loggingScope");
-
-		LogScope restClientLogScope = restClientAnnotation.loggingScope();
-		if (restClientLogScope != LogScope.DEFAULT) {
-			loggingScope = restClientLogScope;
-		}
-
-		return new ResteethAnnotationMetadata(loggingScope);
+		return new ResteethAnnotationMetadata(enableResteethAttributes, restClientAnnotations, interfaceAnnotations);
 	}
 
 }

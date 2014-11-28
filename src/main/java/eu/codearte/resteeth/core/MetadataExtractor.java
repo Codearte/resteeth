@@ -57,12 +57,9 @@ class MetadataExtractor {
 		return new MethodMetadata(methodUrl,
 				extractRequestMethod(requestMapping, controllerRequestMapping),
 				extractReturnType(method),
-				requestBody,
-				urlVariables,
-				queryParameters,
-				pojoQueryParameter,
 				extractHeaders(requestMapping, controllerRequestMapping),
-				new MethodAnnotationMetadata(resteethAnnotationMetadata));
+				new MethodAnnotationMetadata(resteethAnnotationMetadata),
+				new ParameterMetadata(requestBody, urlVariables, queryParameters, pojoQueryParameter));
 	}
 
 	private Class<?> extractReturnType(Method method) {

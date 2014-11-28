@@ -20,7 +20,7 @@ public class LoggingHandler implements RestInvocationHandler {
 					invocation.getMethod(),
 					invocation.getMetadata().getRequestMethod(),
 					invocation.getMetadata().getMethodUrl(),
-					invocation.getMetadata().getUrlVariables());
+					invocation.getMetadata().getParameterMetadata().getUrlVariables());
 		}
 		final Object result = invocation.proceed();
 		if (loggingScope == LogScope.FULL) {

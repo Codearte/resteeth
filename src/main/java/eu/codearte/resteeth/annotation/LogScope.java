@@ -5,7 +5,6 @@ package eu.codearte.resteeth.annotation;
  */
 public enum LogScope {
 
-	DEFAULT,
 	NONE,
 	INVOCATION_ONLY,
 	FULL
