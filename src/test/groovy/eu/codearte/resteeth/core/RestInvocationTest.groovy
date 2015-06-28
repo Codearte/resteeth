@@ -1,6 +1,7 @@
 package eu.codearte.resteeth.core
 
 import eu.codearte.resteeth.handlers.RestInvocationHandler
+import org.springframework.http.HttpHeaders
 import spock.lang.Specification
 
 /**
@@ -13,7 +14,7 @@ class RestInvocationTest extends Specification {
 	def 'should call first and only handler in stack'() {
 		given:
 			def handlerMock = Mock(RestInvocationHandler)
-			def invocation = new RestInvocation(null, null, Mock(MethodMetadata), [handlerMock])
+			def invocation = new RestInvocation(null, null, Mock(MethodMetadata), [handlerMock], new HttpHeaders())
 
 		when:
 			invocation.proceed()
@@ -28,7 +29,7 @@ class RestInvocationTest extends Specification {
 				return it.proceed()
 			}] as RestInvocationHandler
 			def secondHandler = Mock(RestInvocationHandler)
-			def invocation = new RestInvocation(null, null, Mock(MethodMetadata), [firstHandler, secondHandler])
+			def invocation = new RestInvocation(null, null, Mock(MethodMetadata), [firstHandler, secondHandler], new HttpHeaders())
 
 		when:
 			def result = invocation.proceed()
@@ -44,7 +45,7 @@ class RestInvocationTest extends Specification {
 				return SOME_RESULT
 			}] as RestInvocationHandler
 			def secondHandler = Mock(RestInvocationHandler)
-			def invocation = new RestInvocation(null, null, Mock(MethodMetadata), [firstHandler, secondHandler])
+			def invocation = new RestInvocation(null, null, Mock(MethodMetadata), [firstHandler, secondHandler], new HttpHeaders())
 
 		when:
 			def result = invocation.proceed()

@@ -6,6 +6,7 @@ import eu.codearte.resteeth.util.SpringUtils;
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -36,9 +37,15 @@ class RestTemplateInvoker implements RestInvocationHandler {
 		requestUrl = appendAnnotatedQueryParameters(requestUrl, methodMetadata.getParameterMetadata().getQueryParameters(), invocation.getArguments());
 		requestUrl = appendPojoQueryParameters(requestUrl, methodMetadata.getParameterMetadata().getPojoQueryIndex(), invocation.getArguments());
 
+		HttpHeaders headers = new HttpHeaders();
+
+		headers.putAll(methodMetadata.getHttpHeaders());
+		headers.putAll(invocation.getDynamicHeaders());
+
 		@SuppressWarnings("unchecked")
 		HttpEntity entity = new HttpEntity(
-				extractRequestBody(methodMetadata.getParameterMetadata().getRequestBodyIndex(), invocation.getArguments()), methodMetadata.getHttpHeaders());
+				extractRequestBody(methodMetadata.getParameterMetadata().getRequestBodyIndex(), invocation.getArguments()),
+				headers);
 
 		Class responseType;
 		boolean returnsResponseEntity = ResponseEntity.class.isAssignableFrom(methodMetadata.getReturnType());

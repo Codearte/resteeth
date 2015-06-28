@@ -26,7 +26,7 @@ public class HeadersHandler implements RestInvocationHandler {
 			for (Annotation annotation : parameterAnnotation) {
 				if (RequestHeader.class.isAssignableFrom(annotation.annotationType())) {
 					RequestHeader requestHeader = (RequestHeader) annotation;
-					invocation.getMetadata().getHttpHeaders().add(requestHeader.value(), String.valueOf(invocation.getArguments()[i]));
+					invocation.getDynamicHeaders().add(requestHeader.value(), String.valueOf(invocation.getArguments()[i]));
 				}
 			}
 		}

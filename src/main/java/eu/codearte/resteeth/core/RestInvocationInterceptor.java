@@ -4,6 +4,7 @@ import eu.codearte.resteeth.handlers.RestInvocationHandler;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.http.HttpHeaders;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -28,7 +29,8 @@ class RestInvocationInterceptor implements MethodInterceptor {
 			return "Proxy to " + handlers;
 		}
 		final RestInvocation restInvocation = new RestInvocation(
-				invocation.getMethod(), invocation.getArguments(), methodMetadataMap.get(invocation.getMethod()), handlers);
+				invocation.getMethod(), invocation.getArguments(), methodMetadataMap.get(invocation.getMethod()),
+				handlers, new HttpHeaders());
 		return restInvocation.proceed();
 	}
 }
