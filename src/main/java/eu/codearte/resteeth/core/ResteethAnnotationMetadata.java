@@ -18,7 +18,7 @@ public class ResteethAnnotationMetadata {
 	private Map<Class, Annotation> annotations;
 
 	ResteethAnnotationMetadata(AnnotationAttributes enableResteethAttributes,
-	                                  List<Annotation> restClientAnnotations, List<Annotation> interfaceAnnotations) {
+	                           List<Annotation> restClientAnnotations, List<Annotation> interfaceAnnotations) {
 		RestClient restClientAnnotation = null;
 		for (Annotation annotation : restClientAnnotations) {
 			if (annotation.annotationType() == RestClient.class) {
