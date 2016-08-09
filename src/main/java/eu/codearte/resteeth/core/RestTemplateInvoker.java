@@ -11,8 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Jakub Kubrynski
@@ -85,7 +84,8 @@ class RestTemplateInvoker implements RestInvocationHandler {
 		}
 		Map<String, Object> queryParamsMap = new HashMap<>();
 		Object pojoParameterValue = arguments[pojoQueryParameter];
-		Field[] fields = pojoParameterValue.getClass().getDeclaredFields();
+
+		List<Field> fields = getAllFields(pojoParameterValue.getClass());
 		for (Field field : fields) {
 			if (!field.isSynthetic()) {
 				try {
@@ -99,6 +99,14 @@ class RestTemplateInvoker implements RestInvocationHandler {
 			}
 		}
 		return appendQueryParameters(requestUrl, queryParamsMap);
+	}
+
+	private static List<Field> getAllFields(Class<?> type) {
+		List<Field> fields = new ArrayList<Field>();
+		for (Class<?> c = type; c != null; c = c.getSuperclass()) {
+			fields.addAll(Arrays.asList(c.getDeclaredFields()));
+		}
+		return fields;
 	}
 
 	private String appendAnnotatedQueryParameters(String requestUrl, Map<Integer, String> queryParameters, Object[] arguments) {
