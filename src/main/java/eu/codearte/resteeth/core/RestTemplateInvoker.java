@@ -126,13 +126,15 @@ class RestTemplateInvoker implements RestInvocationHandler {
 
 		boolean isFirst = true;
 
-		for (Map.Entry<String, ?> entry : queryParamsMap.entrySet()) {
+		String[] keys = queryParamsMap.keySet().toArray(new String[queryParamsMap.size()]);
+		Arrays.sort(keys);
+		for (String paramName : keys) {
 			if (isFirst) {
 				isFirst = false;
 			} else {
 				urlBuilder.append("&");
 			}
-			urlBuilder.append(entry.getKey()).append("=").append(entry.getValue());
+			urlBuilder.append(paramName).append("=").append(queryParamsMap.get(paramName));
 		}
 
 		return urlBuilder.toString();

@@ -156,7 +156,7 @@ class RestClientMethodInterceptorTest extends Specification {
 
 	def "should invoke get method with request parameters pojo"() {
 		given:
-			mockServer.expect(requestTo("http://localhost/users/queriesPojo?name=John&id=42")).andExpect(method(HttpMethod.GET))
+			mockServer.expect(requestTo("http://localhost/users/queriesPojo?id=42&name=John")).andExpect(method(HttpMethod.GET))
 					.andRespond(withSuccess("{ \"id\" : \"42\", \"name\" : \"John\"}", MediaType.APPLICATION_JSON))
 
 		when:
