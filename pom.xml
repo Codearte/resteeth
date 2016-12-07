@@ -4,7 +4,7 @@
 	<groupId>eu.codearte.resteeth</groupId>
 	<artifactId>resteeth</artifactId>
 	<name>ResTeeth</name>
-	<version>0.3.4</version>
+	<version>0.3.5-SNAPSHOT</version>
 
 	<description>ResTeeth - dynamic REST client for Spring</description>
 	<url>https://github.com/Codearte/resteeth/</url>
@@ -191,7 +191,7 @@
 		<connection>scm:git:https://github.com/Codearte/resteeth.git</connection>
 		<developerConnection>scm:git:git@github.com:Codearte/resteeth.git</developerConnection>
 		<url>https://github.com/Codearte/resteeth/</url>
-		<tag>resteeth-0.3.4</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<licenses>
